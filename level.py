@@ -53,7 +53,7 @@ class Level:
 
     def setupLevel(self):
         # Camera Setup, Level size needed for Background Clipping calculation
-        self.cameraGroup = CameraGroup()
+        self.cameraGroup = CameraGroup(self)
         self.player = pygame.sprite.GroupSingle()
 
         # Fades Setup
