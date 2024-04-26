@@ -1,6 +1,7 @@
 from settings import *
 
 from tiles import StaticTile, StaticObject
+from player import Player
 from functions import importCutGraphics, importCsvLayout
 from camera import CameraGroup
 
@@ -83,7 +84,7 @@ class Level:
         playerLayout = importCsvLayout(self.levelData['Player'])
         self.player = pygame.sprite.GroupSingle()
         self.goal = pygame.sprite.GroupSingle()
-        # self.playerSetup(playerLayout, self.levelData['Parameters'].get('playerFacingRight', True))
+        self.playerSetup(playerLayout, self.levelParameters.get('playerFacingRight', True))
 
         # Future Decoration Setup
         futureBgLayout = importCsvLayout(self.levelData.get('FutureBg'))
@@ -173,16 +174,27 @@ class Level:
             self.cameraGroup.add(self.futureFadesSprites)
         self.cameraGroup.add(self.fadesSprites)
 
+        self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.decorationSprites.sprites()
+
+    # noinspection PyTypeChecker
+    def playerSetup(self, layout, facingRight):
+        for rowIndex, row in enumerate(layout):
+            for colIndex, val in enumerate(row):
+                x = colIndex * tileSize
+                y = rowIndex * tileSize
+                if val == '0':
+                    sprite = Player((x, y), facingRight)
+                    self.player.add(sprite)
+                elif val == '1':
+                    goalSurf = pygame.image.load('assets/images/character/goal.png').convert_alpha()
+                    sprite = StaticTile(x, y, goalSurf)
+                    sprite.drawable = False  # Defining Goal Visibility
+                    self.goal.add(sprite)
+
     def input(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_d]:
-            self.cameraGroup.offset.x += 4
-        elif keys[pygame.K_a]:
-            self.cameraGroup.offset.x -= 4
-        if keys[pygame.K_w]:
-            self.cameraGroup.offset.y -= 4
-        elif keys[pygame.K_s]:
-            self.cameraGroup.offset.y += 4
+        if keys[pygame.K_ESCAPE]:
+            pass
 
     def run(self):
         # Keyboard Input
