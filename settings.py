@@ -21,7 +21,6 @@ level_1 = {
     'Decoration': 'levels/1/level1_Decoration.csv',
     'Player': 'levels/1/level1_Player.csv',
     'Npcs': 'levels/1/level1_Npcs.csv',
-    'Enemies': 'levels/1/level1_Enemies.csv',
     'FutureBg': 'levels/1/level1_FutureBg.csv',
     'PastBg': 'levels/1/level1_PastBg.csv',
     'bgDecoration': 'levels/1/level1_bgDecoration.csv',

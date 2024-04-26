@@ -1,8 +1,6 @@
-import pygame
+from settings import *
 
 from level import Level
-from settings import screenSize, screenFlags, fps
-from settings import level_1
 
 
 class Game:
