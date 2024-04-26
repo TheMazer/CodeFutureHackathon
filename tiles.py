@@ -1,5 +1,7 @@
 from settings import *
 
+from functions import importFolder
+
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, x, y, drawable = True):
@@ -26,3 +28,30 @@ class StaticObject(StaticTile):
         self.rect.left += start
         self.rect.width = width
         self.image = self.image.subsurface(start, 0, width, self.image.get_height())
+
+
+class AnimatedTile(Tile):
+    def __init__(self, x, y, path):
+        super().__init__(x, y)
+        self.animationSpeed = 0.15
+        self.frames = importFolder('assets/images/tilesets/animatedObjects/' + str(path))
+        self.frameIndex = 0
+        self.image = self.frames[self.frameIndex]
+
+    def animate(self):
+        self.frameIndex += self.animationSpeed
+        if self.frameIndex >= len(self.frames):
+            self.frameIndex = 0
+        self.image = self.frames[int(self.frameIndex)]
+
+    def update(self):
+        self.animate()
+
+
+class Alarm(AnimatedTile):
+    def __init__(self, x, y, path):
+        super().__init__(x, y, path)
+        self.animationSpeed = 0.25
+        centerX = x + int(tileSize / 2)
+        centerY = y + int(tileSize / 2)
+        self.rect = self.image.get_rect(center = (centerX, centerY))

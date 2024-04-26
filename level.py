@@ -1,6 +1,6 @@
 from settings import *
 
-from tiles import StaticTile, StaticObject
+from tiles import StaticTile, StaticObject, Alarm
 from player import Player
 from functions import importCutGraphics, importCsvLayout
 from camera import CameraGroup
@@ -46,6 +46,9 @@ class Level:
                         sprite = StaticTile(x, y, tileSurface)
                     elif sType == 'Decoration':
                         sprite = StaticObject(x, y, val)
+                    elif sType == 'AnimatedObjects':
+                        if val == '0':  # Alarm
+                            sprite = Alarm(x, y, val)
 
                     spriteGroup.add(sprite)
 
@@ -67,6 +70,14 @@ class Level:
         # Past Fades Setup
         pastFadesLayout = importCsvLayout(self.levelData.get('PastFades'))
         self.pastFadesSprites = self.createTileGroup(pastFadesLayout, 'Fades')
+
+        # Animated Objects Setup
+        animatedLayout = importCsvLayout(self.levelData.get('AnimatedObjects'))
+        self.animatedSprites = self.createTileGroup(animatedLayout, 'AnimatedObjects')
+
+        # Past Animated Objects Setup
+        pastAnimatedLayout = importCsvLayout(self.levelData.get('PastAnimatedObjects'))
+        self.pastAnimatedSprites = self.createTileGroup(pastAnimatedLayout, 'AnimatedObjects')
 
         # Future Objects Setup
         futureObjectsLayout = importCsvLayout(self.levelData.get('FutureObjects'))
@@ -154,6 +165,7 @@ class Level:
             self.cameraGroup.add(self.pastGroundSprites)
             self.cameraGroup.add(self.pastBgSprites)
             self.cameraGroup.add(self.pastObjectsSprites)
+            self.cameraGroup.add(self.pastAnimatedSprites)
             self.cameraGroup.add(self.pastPlatforms)
             self.cameraGroup.add(self.pastHelicopters)
             self.cameraGroup.add(self.pastSaws)
@@ -161,6 +173,7 @@ class Level:
             self.cameraGroup.add(self.futureGroundSprites)
             self.cameraGroup.add(self.futureBgSprites)
             self.cameraGroup.add(self.futureObjectsSprites)
+            self.cameraGroup.add(self.animatedSprites)
             self.cameraGroup.add(self.futurePlatforms)
             self.cameraGroup.add(self.futureHelicopters)
             self.cameraGroup.add(self.futureSaws)
