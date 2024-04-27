@@ -58,6 +58,10 @@ class CameraGroup(pygame.sprite.Group):
             else:
                 message.draw(self.displaySurface, self.offset)
 
+        # Hints
+        for hint in self.levelClass.hints:
+            hint.draw(self.displaySurface, self.offset)
+
         # Time Travel Button
         playerControllability = self.levelClass.player.sprite.controllability
         hasTimeMachine = self.levelClass.hasTimeMachine

@@ -212,3 +212,47 @@ class BalloonMessage:
                         self.switchPlayerControllability(True)
                     if self.callback is not None:
                         self.callback()
+
+
+class Hint:
+    def __init__(self, pos, parent, text, key = None):
+        self.parent = parent
+        self.text = text
+        self.key = key
+        self.color = 'White'
+        self.shadowColor = '#333333'
+
+        self.pos = pygame.Vector2(pos[0] - 16 * len(self.text) // 2, pos[1] - (32 if key is not None else 8))
+        self.printingSound = pygame.mixer.Sound('assets/sounds/speech/typing.mp3')
+
+        if key is not None:
+            self.keyImage = pygame.image.load('assets/images/gui/keyboard_keys/' + str.lower(key) + '.png').convert_alpha()
+        else:
+            self.keyImage = None
+
+        self.lastText = ''
+        self.textPosition = 0
+        self.printingSpeed = 3
+
+        self.snip = pygame.Surface((0, 0))
+        self.shadowSnip = pygame.Surface((0, 0))
+
+    def draw(self, surface, offset):
+        self.textPosition += 1
+        slicedText = self.text[0:self.textPosition // self.printingSpeed]
+
+        if slicedText != self.lastText:
+            self.lastText = slicedText
+
+            # Playing Printing Sound
+            if slicedText and slicedText[-1] not in [' ', '.', ',', ';', '!', '?']:
+                self.printingSound.play(maxtime=self.printingSpeed * fps)
+
+            self.snip = dialogueFont.render(slicedText, False, self.color)
+            self.shadowSnip = dialogueFont.render(slicedText, False, self.shadowColor)
+
+        surface.blit(self.shadowSnip, self.pos - offset + (2, 2))
+        surface.blit(self.snip, self.pos - offset)
+        if self.keyImage:
+            self.keyImage.set_alpha(255 * ((self.textPosition // self.printingSpeed) / len(self.text)))
+            surface.blit(self.keyImage, self.pos - offset + (16 * len(self.text) / 2 - 12, 20))
