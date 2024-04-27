@@ -24,8 +24,8 @@ class Menu:
         self.currentLevel = levelList[self.progress]
 
         # Menu Theme
-        self.menuTheme = pygame.mixer.Sound('assets/sounds/music/MainMenuTheme.wav')
-        self.menuTheme.set_volume(0.5 * int(self.config.get('musicVolume', 'Settings')) / 100)
+        self.menuTheme = pygame.mixer.Sound('assets/sounds/music/MainMenuTheme Trap Remix.wav')
+        self.menuTheme.set_volume(0.4 * int(self.config.get('musicVolume', 'Settings')) / 100)
 
         # Buttons
         interfaceVolume = int(self.config.get('interfaceVolume', 'Settings'))
@@ -145,9 +145,9 @@ class Menu:
                 'by Pixel Pioneers', '',
                 'Programming',
                 'Ryzhenkov Evgeniy', '', '',
-                'Music', '',
+                'Original Songs for Remixes', '',
                 'Main Menu Theme: Uppbeat.io',
-                'Level 1 Background Music: Tunetank.com',
+                'Cunning Fox: Tunetank.com',
                 'Danger by Vislevski: Tunetank.com',
                 'Arcade Machine by Nuclear Wave: Tunetank.com',
                 'Pulse of Time by Anton Kramar: Tunetank.com', '',
