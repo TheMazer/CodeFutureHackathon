@@ -21,9 +21,12 @@ class CameraGroup(pygame.sprite.Group):
         self.graduallyOffset += round((target_offset - self.graduallyOffset) * 0.05)
         self.offset = self.graduallyOffset
 
+        # Tiles will Draw only if colliding this Rect
+        cameraViewRect = pygame.Rect(self.offset, screenSize)
+
         for sprite in self.sprites():
             sprite.update()
 
             offsetPos = sprite.rect.topleft - self.offset
-            if sprite.drawable:
+            if sprite.drawable and sprite.rect.colliderect(cameraViewRect):
                 self.displaySurface.blit(sprite.image, offsetPos)
