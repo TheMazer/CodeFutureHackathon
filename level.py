@@ -1,7 +1,7 @@
 from settings import *
 
 import threading
-from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, VerticalTrigger, Platform, Helicopter, Saw, MidDoor, Alarm
+from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, VerticalTrigger, Bonus, Platform, Helicopter, Saw, MidDoor, Alarm
 from particles import ParticleSource, ParticleSpawner
 from player import Player
 from npc import Marcus, MarcusAtCorps, HistoryTeacher, FranceTeacher, MathsTeacher
@@ -291,6 +291,21 @@ class Level:
                             particleSpawner = ParticleSpawner(x + 2 * tileSize, y - 3 * tileSize, 'fadeLeaf', self.displaySurface, self.cameraGroup)
                             self.futureParticleSpawnersSprites.add(particleSpawner)  # Fade Leaf Particles
 
+                    elif sType == 'Bonuses':
+                        bonusesTileList = importCutGraphics('assets/images/tilesets/bonuses.png')
+                        tileSurface = bonusesTileList[int(val)]
+                        if val == '0':  # Jump Boost
+                            particleSource = ParticleSource(x + tileSize / 2, y + tileSize / 2, '7', self.displaySurface, self.cameraGroup)
+                            self.particleSourcesSprites.add(particleSource)
+                            sprite = Bonus(x, y, tileSurface, val, particleSource)
+                        elif val == '1':  # Speed Boost
+                            particleSource = ParticleSource(x + tileSize / 2, y + tileSize / 2, '8', self.displaySurface, self.cameraGroup)
+                            self.particleSourcesSprites.add(particleSource)
+                            sprite = Bonus(x, y, tileSurface, val, particleSource)
+                        elif val == '2':  # Shield
+                            particleSource = ParticleSource(x + tileSize / 2, y + tileSize / 2, '9', self.displaySurface, self.cameraGroup)
+                            self.particleSourcesSprites.add(particleSource)
+                            sprite = Bonus(x, y, tileSurface, val, particleSource)
                     elif sType == 'ScriptedObjects':
                         if val == '0':  # Energy Explosion
                             sprite = EnergyExplosion(x, y)
@@ -390,6 +405,10 @@ class Level:
         decorationLayout = importCsvLayout(self.levelData.get('Decoration'))
         self.decorationSprites = self.createTileGroup(decorationLayout, 'Decoration')
 
+        # Bonuses Setup
+        bonusesLayout = importCsvLayout(self.levelData.get('Bonuses'))
+        self.bonusesSprites = self.createTileGroup(bonusesLayout, 'Bonuses')
+
         # Player Setup
         playerLayout = importCsvLayout(self.levelData['Player'])
         self.player = pygame.sprite.GroupSingle()
@@ -482,6 +501,7 @@ class Level:
             self.cameraGroup.add(self.futureBgSprites)
             self.cameraGroup.add(self.futureObjectsSprites)
             self.cameraGroup.add(self.animatedSprites)
+            self.cameraGroup.add(self.bonusesSprites)
             self.cameraGroup.add(self.futurePlatforms)
             self.cameraGroup.add(self.futureHelicopters)
             self.cameraGroup.add(self.futureSaws)
@@ -537,6 +557,7 @@ class Level:
             self.cameraGroup.add(self.futureBgSprites)
             self.cameraGroup.add(self.futureObjectsSprites)
             self.cameraGroup.add(self.animatedSprites)
+            self.cameraGroup.add(self.bonusesSprites)
             self.cameraGroup.add(self.futurePlatforms)
             self.cameraGroup.add(self.futureHelicopters)
             self.cameraGroup.add(self.futureSaws)
@@ -641,6 +662,7 @@ class Level:
                     sprite.jumpSound.set_volume(0.2 * int(self.config.get('effectsVolume', 'Settings')) / 100)
                     sprite.landSound.set_volume(0.2 * int(self.config.get('effectsVolume', 'Settings')) / 100)
                     sprite.damageTakenSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100)
+                    sprite.collectSound.set_volume(0.2 * int(self.config.get('effectsVolume', 'Settings')) / 100)
                     self.player.add(sprite)
                     self.lastPlayerPositions['init'] = (x, y)
                 elif val == '1':
@@ -704,6 +726,11 @@ class Level:
                     for hint in self.hints:
                         if hint.parent == obj:
                             self.hints.remove(hint)
+
+    def checkBonusCollect(self):
+        for bonus in self.bonusesSprites:
+            if bonus.rect.colliderect(self.player.sprite.hitbox):
+                bonus.collect(self.player.sprite)
 
     def constraintsCheck(self):
         playerCollisionRect = self.player.sprite.collisionRect
@@ -782,6 +809,7 @@ class Level:
 
         # Checking Collisions
         self.checkBgScriptedObjectsCollision()
+        self.checkBonusCollect()
         self.damageObjectsCollisionCheck()
         self.checkFinish()
 

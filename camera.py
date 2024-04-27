@@ -1,8 +1,9 @@
 from settings import *
 
-import random
+import random, time
 from tiles import Cloud
 from interactive import TimeTravelButton
+from functions import importCutGraphics
 
 
 class CameraGroup(pygame.sprite.Group):
@@ -30,6 +31,10 @@ class CameraGroup(pygame.sprite.Group):
         self.fadeImage = None
         self.guiParticles = []
         self.foundItemAnimations = []
+
+        # Boosts Display
+        self.boostsIcons = importCutGraphics('assets/images/tilesets/bonuses.png')
+        self.boostsColors = ('#78d800', '#f3cb1e', '#b6cef0')
 
         # Background
         self.backgroundSurface = pygame.Surface((levelClass.levelSize[0] * tileSize, levelClass.levelSize[1] * tileSize))
@@ -126,6 +131,32 @@ class CameraGroup(pygame.sprite.Group):
         # Hints
         for hint in self.levelClass.hints:
             hint.draw(self.displaySurface, self.offset)
+
+        # Boosts Display
+        timers = []
+        if player.jumpBoost[1] is not None:
+            timeLeft = player.jumpBoost[1] - time.time()
+            timeLeftFormatted = f"{int(timeLeft // 60):02d}:{int(timeLeft % 60):02d}"
+            timers.append((0, timeLeftFormatted))
+        if player.speedBoost[1] is not None:
+            timeLeft = player.speedBoost[1] - time.time()
+            timeLeftFormatted = f"{int(timeLeft // 60):02d}:{int(timeLeft % 60):02d}"
+            timers.append((1, timeLeftFormatted))
+        if player.invincibility[1] is not None:
+            timeLeft = player.invincibility[1] - time.time()
+            timeLeftFormatted = f"{int(timeLeft // 60):02d}:{int(timeLeft % 60):02d}"
+            timers.append((2, timeLeftFormatted))
+
+        for i, timer in enumerate(timers):
+            pos = pygame.Vector2(64, screenSize[1] - 64)
+            icon = self.boostsIcons[timer[0]]
+            # noinspection PyTypeChecker
+            clockSnip = bigFont.render(timer[1], False, self.boostsColors[timer[0]])
+            clockShadow = bigFont.render(timer[1], False, '#666666')
+
+            self.displaySurface.blit(icon, pos + (0, -icon.get_height() - 64 * i))
+            self.displaySurface.blit(clockShadow, pos + (icon.get_width() + 8 + 3, -icon.get_height() - 64 * i + icon.get_height() / 2 - clockSnip.get_height() / 2 + 3))
+            self.displaySurface.blit(clockSnip, pos + (icon.get_width() + 8, -icon.get_height() - 64 * i + icon.get_height() / 2 - clockSnip.get_height() / 2))
 
         # Objectives
         objectives = self.levelClass.objectives

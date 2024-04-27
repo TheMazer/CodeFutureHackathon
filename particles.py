@@ -83,6 +83,42 @@ class ParticleSource(Tile):
             particleBaseDrawable = False
             scalingSpeed = 0.2
             gravity = 0
+        elif self.particleType == '7':  # Case "Jump Boost" type of Particles
+            if self.frame < self.lifetime or self.lifetime == -1:
+                self.particles.append([
+                    [self.x - 32, self.y - 32],  # Position
+                    [random.randint(0, 2) - 1,
+                     random.randint(0, 2) - 1],  # Speed X, Y
+                    random.randint(6, 8)  # Scale
+                ])
+            glowEffectColor = (5, 20, 5)
+            particleBaseDrawable = False
+            scalingSpeed = 0.2
+            gravity = 0
+        elif self.particleType == '8':  # Case "Jump Boost" type of Particles
+            if self.frame < self.lifetime or self.lifetime == -1:
+                self.particles.append([
+                    [self.x - 32, self.y - 32],  # Position
+                    [random.randint(0, 2) - 1,
+                     random.randint(0, 2) - 1],  # Speed X, Y
+                    random.randint(6, 8)  # Scale
+                ])
+            glowEffectColor = (20, 20, 5)
+            particleBaseDrawable = False
+            scalingSpeed = 0.2
+            gravity = 0
+        elif self.particleType == '9':  # Case "Jump Boost" type of Particles
+            if self.frame < self.lifetime or self.lifetime == -1:
+                self.particles.append([
+                    [self.x - 32, self.y - 32],  # Position
+                    [random.randint(0, 2) - 1,
+                     random.randint(0, 2) - 1],  # Speed X, Y
+                    random.randint(6, 8)  # Scale
+                ])
+            glowEffectColor = (5, 5, 20)
+            particleBaseDrawable = False
+            scalingSpeed = 0.2
+            gravity = 0
 
         camOffset = self.cameraClass.offset if customOffset is None else customOffset
         for particle in self.particles:

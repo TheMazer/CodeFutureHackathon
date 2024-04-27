@@ -4,8 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9f11e7d0-a6f2-415f-9812-562477094973" name="Changes" comment="Level 2 Base">
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    <list default="true" id="9f11e7d0-a6f2-415f-9812-562477094973" name="Changes" comment="Music Remixes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/level.py" beforeDir="false" afterPath="$PROJECT_DIR$/level.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/particles.py" beforeDir="false" afterPath="$PROJECT_DIR$/particles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tiles.py" beforeDir="false" afterPath="$PROJECT_DIR$/tiles.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +43,12 @@
       </UrlAndAccount>
     </option>
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;d77c1dff&quot;,
   &quot;associatedIndex&quot;: 8
@@ -54,8 +66,9 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/Yevgeniy/PycharmProjects/Preparings/main.py",
+    "last_opened_file_path": "C:/Users/Yevgeniy/PycharmProjects/Preparings",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -73,7 +86,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Preparings/main.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -332,7 +345,31 @@
       <option name="project" value="LOCAL" />
       <updated>1714202766183</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="Clouds &amp; Sky">
+      <option name="closed" value="true" />
+      <created>1714208670693</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1714208670693</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Repository Design">
+      <option name="closed" value="true" />
+      <created>1714235401780</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1714235401780</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Music Remixes">
+      <option name="closed" value="true" />
+      <created>1714261550785</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1714261550785</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -350,8 +387,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Level 1 Design" />
-    <MESSAGE value="Create Player" />
     <MESSAGE value="Camera Gradually Movement" />
     <MESSAGE value="Create Animated Objects" />
     <MESSAGE value="Particle Sources" />
@@ -364,7 +399,6 @@
     <MESSAGE value="Time Travel" />
     <MESSAGE value="Config Class" />
     <MESSAGE value="Music Volume" />
-    <MESSAGE value="Clouds &amp; Sky" />
     <MESSAGE value="Objectives List" />
     <MESSAGE value="Objectives Completion" />
     <MESSAGE value="Menu" />
@@ -375,6 +409,9 @@
     <MESSAGE value=".idea Files" />
     <MESSAGE value="Hints" />
     <MESSAGE value="Level 2 Base" />
-    <option name="LAST_COMMIT_MESSAGE" value="Level 2 Base" />
+    <MESSAGE value="Clouds &amp; Sky" />
+    <MESSAGE value="Repository Design" />
+    <MESSAGE value="Music Remixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Music Remixes" />
   </component>
 </project>

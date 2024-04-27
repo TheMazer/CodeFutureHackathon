@@ -1,6 +1,6 @@
 from settings import *
 
-import random
+import random, time
 from functions import importFolder
 
 
@@ -29,6 +29,41 @@ class StaticObject(StaticTile):
         self.rect.left += start
         self.rect.width = width
         self.image = self.image.subsurface(start, 0, width, self.image.get_height())
+
+
+class Bonus(StaticTile):
+    def __init__(self, x, y, surface, val, glowParticles):
+        super().__init__(x, y, surface, val)
+        self.rect.center = (x + tileSize / 2, y + tileSize / 2)
+        self.glowParticles = glowParticles
+        self.val = val
+        self.up = True
+        self.offsetY = 0
+        self.y = y + tileSize / 2
+
+    def collect(self, player):
+        endTime = time.time() + 20 + 1
+        if self.val == '0':
+            player.jumpBoost = [1.5, endTime]
+        elif self.val == '1':
+            player.speedBoost = [1.5, endTime]
+        elif self.val == '2':
+            player.invincibility = [1, endTime]
+        player.collectSound.play()
+        self.glowParticles.kill()
+        self.kill()
+
+    def update(self):
+        if self.up:
+            self.offsetY += 0.25
+            if self.offsetY >= 8:
+                self.up = False
+        else:
+            self.offsetY -= 0.25
+            if self.offsetY <= -8:
+                self.up = True
+        self.rect.centery = self.y + self.offsetY
+        self.glowParticles.y = self.y + self.offsetY
 
 
 class Platform(StaticTile):

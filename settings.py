@@ -109,6 +109,7 @@ level_3 = {
     'FutureObjects': 'levels/3/level3_FutureObjects.csv',
     'PastObjects': 'levels/3/level3_PastObjects.csv',
     'Decoration': 'levels/3/level3_Decoration.csv',
+    'Bonuses': 'levels/3/level3_Bonuses.csv',
     'Player': 'levels/3/level3_Player.csv',
     'Npcs': 'levels/3/level3_Npcs.csv',
     'Enemies': 'levels/3/level3_Enemies.csv',

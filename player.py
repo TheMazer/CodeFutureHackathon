@@ -2,6 +2,7 @@ from settings import *
 
 from functions import importFolder
 from tiles import Helicopter
+import time
 
 
 class Player(pygame.sprite.Sprite):
@@ -19,6 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.jumpSound = pygame.mixer.Sound('assets/sounds/effects/player/jump.mp3')
         self.landSound = pygame.mixer.Sound('assets/sounds/effects/player/land.mp3')
         self.damageTakenSound = pygame.mixer.Sound('assets/sounds/effects/player/damageTaken.wav')
+        self.collectSound = pygame.mixer.Sound('assets/sounds/effects/player/collect.wav')
 
         # Player movement
         self.collideableSprites = None
@@ -39,6 +41,11 @@ class Player(pygame.sprite.Sprite):
         self.passPlatforms = -1
         self.invulnerability = 0
         self.onGround = False
+
+        # Boosts
+        self.speedBoost = [1, None]
+        self.jumpBoost = [1, None]
+        self.invincibility = [0, None]
 
     def importCharacterAssets(self):
         charPath = 'assets/images/character/'
@@ -76,7 +83,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
 
     def horizontalMovementCollision(self):
-        self.hitbox.x += self.direction.x * self.playerSpeed
+        self.hitbox.x += self.direction.x * self.playerSpeed * self.speedBoost[0]
 
         for sprite in self.collideableSprites:
             if sprite.rect.colliderect(self.hitbox):
@@ -124,14 +131,15 @@ class Player(pygame.sprite.Sprite):
         self.hitbox.y += self.direction.y
 
     def jump(self):
-        self.direction.y = self.playerJumpSpeed
+        self.direction.y = self.playerJumpSpeed * self.jumpBoost[0]
         self.jumpSound.play()
 
     def applyDamage(self):
-        if self.invulnerability <= 0:
-            self.invulnerability = 20  # Invulnerability for some time
-            self.passPlatforms = 1  # Balance loss on Saw Impact
-            self.damageTakenSound.play()
+        if not self.invincibility[0]:
+            if self.invulnerability <= 0:
+                self.invulnerability = 20  # Invulnerability for some time
+                self.passPlatforms = 1  # Balance loss on Saw Impact
+                self.damageTakenSound.play()
 
     def hitAnimation(self):
         if self.invulnerability > 0:
@@ -173,11 +181,27 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.status = 'idle'
 
+    def boostsProcessing(self):
+        currentTime = time.time()
+        if self.speedBoost[1] is not None:
+            if currentTime >= self.speedBoost[1]:
+                self.speedBoost[0] = 1
+                self.speedBoost[1] = None
+        if self.jumpBoost[1] is not None:
+            if currentTime >= self.jumpBoost[1]:
+                self.jumpBoost[0] = 1
+                self.jumpBoost[1] = None
+        if self.invincibility[1] is not None:
+            if currentTime >= self.invincibility[1]:
+                self.invincibility[0] = 0
+                self.invincibility[1] = None
+
     def update(self):
         self.getInput()
         self.getStatus()
         self.animate()
         self.hitAnimation()
+        self.boostsProcessing()
         self.oldRect = self.hitbox.copy()
         self.horizontalMovementCollision()
         self.verticalMovementCollision()
