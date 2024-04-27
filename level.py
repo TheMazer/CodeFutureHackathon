@@ -1,6 +1,6 @@
 from settings import *
 
-from tiles import StaticTile, StaticObject, Alarm
+from tiles import StaticTile, StaticObject, EnergyExplosion, Alarm
 from particles import ParticleSource
 from player import Player
 from npc import Marcus
@@ -45,6 +45,13 @@ class Level:
         self.setupLevel()
 
     # Game Management Functions
+    def startScriptedObject(self, event, destroy = False):
+        for sprite in self.scriptedObjectsSprites:
+            if isinstance(sprite, EnergyExplosion) and event == 'EnergyExplosion':
+                def destruct():
+                    if destroy: self.scriptedObjectsSprites.remove(sprite)
+                sprite.activate(0.5, destruct)  # Todo: Make config for this
+
     def switchPlayerControllability(self, mode: bool = None):
         if mode is not None:
             self.player.sprite.controllability = mode
@@ -94,6 +101,9 @@ class Level:
                         sprite = StaticTile(x, y, tileSurface)
                     elif sType == 'Decoration':
                         sprite = StaticObject(x, y, val)
+                    elif sType == 'ScriptedObjects':
+                        if val == '0':  # Energy Explosion
+                            sprite = EnergyExplosion(x, y)
                     elif sType == 'AnimatedObjects':
                         if val == '0':  # Alarm
                             sprite = Alarm(x, y, val)
@@ -131,6 +141,17 @@ class Level:
         # Past Particle Sources Setup
         pastParticleSourcesLayout = importCsvLayout(self.levelData.get('PastParticleSources'))
         self.pastParticleSourcesSprites = self.createTileGroup(pastParticleSourcesLayout, 'ParticleSources')
+
+        # Scripted Objects Setup
+        scriptedObjectsLayout = importCsvLayout(self.levelData['ScriptedObjects'])
+        self.scriptedObjectsSprites = self.createTileGroup(scriptedObjectsLayout, 'ScriptedObjects')
+
+        # Background Scripted Objects
+        self.bgScriptedObjectsSprites = pygame.sprite.Group()
+        for sprite in self.scriptedObjectsSprites:
+            if getattr(sprite, 'isBackground', 0):
+                self.scriptedObjectsSprites.remove(sprite)
+                self.bgScriptedObjectsSprites.add(sprite)
 
         # Animated Objects Setup
         animatedLayout = importCsvLayout(self.levelData.get('AnimatedObjects'))

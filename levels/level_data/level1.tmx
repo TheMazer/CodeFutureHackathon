@@ -7,7 +7,6 @@
  <tileset firstgid="11" source="../tilesets/setup_tiles.tsx"/>
  <tileset firstgid="13" source="../tilesets/animatedObjTiles.tsx"/>
  <tileset firstgid="14" source="../tilesets/objects.tsx"/>
- <tileset firstgid="202" source="../tilesets/enemySetup.tsx"/>
  <tileset firstgid="202" source="../tilesets/particles.tsx"/>
  <tileset firstgid="207" source="../tilesets/npcs.tsx"/>
  <tileset firstgid="212" source="../tilesets/auditoriumTiles.tsx"/>

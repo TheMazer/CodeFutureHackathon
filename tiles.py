@@ -48,6 +48,41 @@ class AnimatedTile(Tile):
         self.animate()
 
 
+class EnergyExplosion(AnimatedTile):
+    def __init__(self, x, y):
+        super().__init__(x, y, 'energyExplosion')
+        self.animationSpeed = 0.5
+        centerX = x + int(tileSize)
+        centerY = y + int(tileSize)
+        self.rect = self.image.get_rect(center=(centerX, centerY))
+        self.blendMode = pygame.BLEND_RGBA_ADD
+        self.drawable = False
+        self.stage = 0
+
+        self.sound = pygame.mixer.Sound('assets/sounds/effects/Shock.wav')
+
+    def activate(self, volume, destructMethod):
+        self.drawable = True
+        self.stage = 1  # Start Explosion
+
+        # Object Destruction
+        self.destruct = destructMethod
+
+        # Sound Effect
+        self.sound.set_volume(volume / 100 * 0.5)
+        self.sound.play()
+
+    def animate(self):
+        if self.stage == 1:  # Check if Explosion running
+            self.frameIndex += self.animationSpeed
+            if self.frameIndex >= len(self.frames):
+                self.drawable = False
+                self.stage = 2  # Explosion Completed
+                self.frameIndex = 0
+                self.destruct()
+            self.image = self.frames[int(self.frameIndex)]
+
+
 class Alarm(AnimatedTile):
     def __init__(self, x, y, path):
         super().__init__(x, y, path)
