@@ -35,9 +35,6 @@ class Player(pygame.sprite.Sprite):
         self.controllability = True
         self.facingRight = facingRight
         self.onGround = False
-        self.onCeiling = False
-        self.onLeft = False
-        self.onRight = False
 
     def importCharacterAssets(self):
         charPath = 'assets/images/character/'
@@ -81,10 +78,8 @@ class Player(pygame.sprite.Sprite):
             if sprite.rect.colliderect(self.hitbox):
                 if self.direction.x < 0:
                     self.hitbox.left = sprite.rect.right
-                    self.onLeft = True
                 elif self.direction.x > 0:
                     self.hitbox.right = sprite.rect.left
-                    self.onRight = True
 
     def verticalMovementCollision(self):
         self.applyGravity()

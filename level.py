@@ -376,7 +376,7 @@ class Level:
         # Adding sprites depending on current time
         if (self.inPast and to != 'past') or to == 'future':
             if self.player.sprite.onGround:
-                self.lastPlayerPositions['past'] = self.player.sprite.rect.topleft
+                self.lastPlayerPositions['past'] = self.player.sprite.hitbox.topleft
             if self.lastPlayerPositions['future'] != (0, 0):
                 self.player.sprite.hitbox.topleft = self.lastPlayerPositions['future']
             self.inPast = False
@@ -392,7 +392,7 @@ class Level:
             self.cameraGroup.add(self.futureSaws)
         else:
             if self.player.sprite.onGround:
-                self.lastPlayerPositions['future'] = self.player.sprite.rect.topleft
+                self.lastPlayerPositions['future'] = self.player.sprite.hitbox.topleft
             if self.lastPlayerPositions['past'] != (0, 0):
                 self.player.sprite.hitbox.topleft = self.lastPlayerPositions['past']
             self.inPast = True
