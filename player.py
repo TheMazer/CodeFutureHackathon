@@ -14,6 +14,11 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = pos)
         self.drawable = True
 
+        # Sound Effects
+        self.jumpSound = pygame.mixer.Sound('assets/sounds/effects/player/jump.mp3')
+        self.landSound = pygame.mixer.Sound('assets/sounds/effects/player/land.mp3')
+        self.damageTakenSound = pygame.mixer.Sound('assets/sounds/effects/player/damageTaken.wav')
+
         # Player movement
         self.collideableSprites = None
         self.direction = pygame.Vector2(0, 0)
@@ -89,7 +94,9 @@ class Player(pygame.sprite.Sprite):
                 if self.direction.y > 0:
                     self.hitbox.bottom = sprite.rect.top
                     self.direction.y = 0
-                    self.onGround = True
+                    if not self.onGround:
+                        self.landSound.play()
+                        self.onGround = True
                 elif self.direction.y < 0:
                     self.hitbox.top = sprite.rect.bottom
                     self.direction.y = 0
@@ -104,6 +111,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         self.direction.y = self.playerJumpSpeed
+        self.jumpSound.play()
 
     def getInput(self):
         if self.controllability:

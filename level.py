@@ -1,5 +1,6 @@
 from settings import *
 
+import threading
 from tiles import StaticTile, StaticObject, EnergyExplosion, Alarm
 from particles import ParticleSource
 from player import Player
@@ -10,10 +11,11 @@ from camera import CameraGroup
 
 
 class Level:
-    def __init__(self, levelData, createMenu, createLevel):
+    def __init__(self, levelData, createMenu, createLevel, config):
         self.displaySurface = pygame.display.get_surface()
         self.createMenu = createMenu
         self.createLevel = createLevel
+        self.config = config
 
         # Level Data
         self.levelData = levelData
@@ -32,6 +34,10 @@ class Level:
             'totalFadeSeconds': [0, 0]
         }
 
+        # Music
+        self.levelMusic = pygame.mixer.Sound(self.levelData['LevelMusic'])
+        self.levelMusic.set_volume(self.levelParameters.get('musicVolume', 1) * int(self.config.get('musicVolume', 'Settings')) / 100)
+
         # Balloon Messages Processing
         self.balloonMessages = []
 
@@ -47,13 +53,15 @@ class Level:
         # Level Setup
         self.setupLevel()
 
+        self.levelMusic.play(loops = -1)
+
     # Game Management Functions
     def startScriptedObject(self, event, destroy = False):
         for sprite in self.scriptedObjectsSprites:
             if isinstance(sprite, EnergyExplosion) and event == 'EnergyExplosion':
                 def destruct():
                     if destroy: self.scriptedObjectsSprites.remove(sprite)
-                sprite.activate(0.5, destruct)  # Todo: Make config for this
+                sprite.activate(int(self.config.get('effectsVolume', 'Settings')), destruct)
 
     def switchPlayerControllability(self, mode: bool = None):
         if mode is not None:
@@ -61,10 +69,34 @@ class Level:
         else:
             self.player.sprite.controllability = not self.player.sprite.controllability
 
+    def switchTimeMachine(self, mode: bool = None):
+        if mode is not None:
+            self.hasTimeMachine = mode
+        else:
+            self.hasTimeMachine = not self.hasTimeMachine
+
+    def setBackgroundMusic(self, path, volume = 0.2, fade = 2, loops = -1):
+        if path != 'stop':
+            def changingMusic():
+                self.levelMusic.stop()
+                self.levelMusic = pygame.mixer.Sound(path)
+                self.levelMusic.set_volume(volume * int(self.config.get('musicVolume', 'Settings')) / 100)
+                self.levelMusic.play(loops=loops)
+            self.levelMusic.fadeout(int(fade * 1000))
+            threading.Timer(fade, changingMusic).start()
+        else:
+            self.levelMusic.fadeout(int(fade * 1000))
+
+    def playSound(self, path, volume = 0.2, fade = 0, loops = 0):
+        soundEffect = pygame.mixer.Sound(path)
+        soundEffect.set_volume(volume * int(self.config.get('effectsVolume', 'Settings')) / 100)
+        soundEffect.play(fade_ms=fade * 1000, loops=loops)
+        return soundEffect
+
     def createBalloonMessage(self, messages, pos, speed = 3, color = 'White', callback = None, voice = 'beep'):
         if pos == 'player': pos = self.player.sprite.rect.topleft  # Player Speech
         message = BalloonMessage(messages, pos, speed, color, voice, self.switchPlayerControllability, callback)
-        message.speechSound.set_volume(0.5)  # Beeps Volume  Todo: Make config for this
+        message.speechSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100)  # Beeps Volume
         self.balloonMessages.append(message)
 
     def screenShakeEffect(self, intensity, stay = False):
@@ -353,6 +385,14 @@ class Level:
         # Resetting Player's Direction to prevent from noclipping
         self.player.sprite.direction = pygame.Vector2()
 
+        # Changing Music
+        if self.levelData.get('FutureMusic') and not self.inPast:
+            self.setBackgroundMusic(self.levelData.get('FutureMusic'), fade=1)
+        elif self.levelData.get('PastMusic') and self.inPast:
+            self.setBackgroundMusic(self.levelData.get('PastMusic'), fade=1)
+        elif self.levelParameters.get('musicSwitching', True):
+            self.setBackgroundMusic(self.levelData.get('LevelMusic'), fade=1)
+
         self.screenshake = 30
         self.flashing = 100
 
@@ -366,7 +406,11 @@ class Level:
                 y = rowIndex * tileSize
                 if val == '0':
                     sprite = Player((x, y), facingRight)
+                    sprite.jumpSound.set_volume(0.2 * int(self.config.get('effectsVolume', 'Settings')) / 100)
+                    sprite.landSound.set_volume(0.2 * int(self.config.get('effectsVolume', 'Settings')) / 100)
+                    sprite.damageTakenSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100)
                     self.player.add(sprite)
+                    self.lastPlayerPositions['init'] = (x, y)
                 elif val == '1':
                     goalSurf = pygame.image.load('assets/images/character/goal.png').convert_alpha()
                     sprite = StaticTile(x, y, goalSurf)

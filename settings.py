@@ -18,6 +18,7 @@ dialogueFont = pygame.font.Font('assets/fonts/PressStart2P.ttf', 16)
 level_1 = {
     'Parameters': {
         'playerFacingRight': False,
+        'musicVolume': 0.2
     },
 
     'ScriptedObjects': 'levels/1/level1_ScriptedObjects.csv',
@@ -38,5 +39,7 @@ level_1 = {
     'Background': 'levels/1/level1_Background.csv',
 
     'pastGroundTileset': 'assets/images/tilesets/auditoriumTiles.png',
-    'futureGroundTileset': 'assets/images/tilesets/auditoriumTiles.png'
+    'futureGroundTileset': 'assets/images/tilesets/auditoriumTiles.png',
+
+    'LevelMusic': 'assets/sounds/music/Cunning Fox.mp3'
 }

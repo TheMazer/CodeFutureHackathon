@@ -1,6 +1,7 @@
 from settings import *
 
 from level import Level
+from functions import Config
 
 
 class Game:
@@ -9,6 +10,7 @@ class Game:
         self.screen = pygame.display.set_mode(screenSize, flags=screenFlags)
         pygame.display.set_caption('Tempus Corp')
         self.clock = pygame.time.Clock()
+        self.config = Config('config.ini')
 
         self.menu = None
         self.level = None
@@ -20,7 +22,7 @@ class Game:
         self.currentStage = self.menu
 
     def createLevel(self, currentLevel):
-        self.level = Level(currentLevel, self.createMainMenu, self.createLevel)
+        self.level = Level(currentLevel, self.createMainMenu, self.createLevel, self.config)
         self.currentStage = self.level
 
     def run(self):
