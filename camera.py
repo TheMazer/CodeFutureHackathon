@@ -1,5 +1,7 @@
 from settings import *
 
+import random
+
 
 class CameraGroup(pygame.sprite.Group):
     def __init__(self, levelClass):
@@ -11,6 +13,11 @@ class CameraGroup(pygame.sprite.Group):
         self.graduallyOffset = pygame.Vector2(0, 0)
         self.offset = pygame.Vector2(0, 0)
 
+        # Effects Setup
+        self.flashingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
+        self.fadingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
+        self.fadeImage = None
+
     def render(self):
         # Cleaning Display
         self.displaySurface.fill('Black')
@@ -20,6 +27,10 @@ class CameraGroup(pygame.sprite.Group):
         target_offset = pygame.Vector2(player.hitbox.center) - pygame.Vector2(screenSize) / 2 - pygame.Vector2(0, 150)
         self.graduallyOffset += round((target_offset - self.graduallyOffset) * 0.05)
         self.offset = self.graduallyOffset
+
+        # Applying Screenshake
+        screenshake = round(self.levelClass.screenshake)
+        self.offset = self.offset + pygame.Vector2(random.randint(-screenshake, screenshake), random.randint(-screenshake, screenshake))
 
         # Tiles will Draw only if colliding this Rect
         cameraViewRect = pygame.Rect(self.offset, screenSize)
@@ -39,3 +50,24 @@ class CameraGroup(pygame.sprite.Group):
                 balloonMessages.remove(message)
             else:
                 message.draw(self.displaySurface, self.offset)
+
+        # Effects Rendering
+        # Flashing
+        flashing = self.levelClass.flashing
+        if flashing:
+            self.flashingSurf.fill((255, 255, 255, min(flashing / 100 * 255, 255)))
+            self.displaySurface.blit(self.flashingSurf, (0, 0))
+
+        # Fading
+        fading = self.levelClass.fading['current']
+        if fading:
+            self.fadingSurf.fill((0, 0, 0, min(fading / 100 * 255, 255)))
+            self.displaySurface.blit(self.fadingSurf, (0, 0))
+
+        # Transition
+        transition = self.levelClass.transition
+        if transition:
+            transitionSurf = pygame.Surface(screenSize)
+            pygame.draw.circle(transitionSurf, (255, 255, 255), (screenSize[0] // 2, screenSize[1] // 2), (60 - abs(transition)) * 32)
+            transitionSurf.set_colorkey((255, 255, 255))
+            self.displaySurface.blit(transitionSurf, (0, 0))

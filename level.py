@@ -19,6 +19,19 @@ class Level:
         self.levelData = levelData
         self.levelParameters = self.levelData.get('Parameters', {})
 
+        # Screen Effects
+        self.screenshake = 0
+        self.screenshakeFrozen = False
+        self.flashing = 0
+        self.transition = 60
+        self.fading = {
+            'fadeIn': 0,
+            'current': 0,
+            'delay': 0,
+            'fadeOut': 0,
+            'totalFadeSeconds': [0, 0]
+        }
+
         # Balloon Messages Processing
         self.balloonMessages = []
 
@@ -43,6 +56,22 @@ class Level:
         message = BalloonMessage(messages, pos, speed, color, voice, self.switchPlayerControllability, callback)
         message.speechSound.set_volume(0.5)  # Beeps Volume  Todo: Make config for this
         self.balloonMessages.append(message)
+
+    def screenShakeEffect(self, intensity, stay = False):
+        self.screenshake = intensity
+        self.screenshakeFrozen = stay
+
+    def screenFlashEffect(self, intensity):
+        self.flashing = intensity
+
+    def screenFadeEffect(self, fadeIn, delay, fadeOut):
+        self.fading = {
+            'fadeIn': fadeIn * fps,
+            'current': 0,
+            'delay': delay * fps,
+            'fadeOut': fadeOut * fps,
+            'totalFadeSeconds': [fadeIn * fps, fadeOut * fps]
+        }
 
     # noinspection PyTypeChecker, PyUnboundLocalVariable
     def createTileGroup(self, layout, sType):
@@ -246,7 +275,7 @@ class Level:
     def input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
-            pass
+            pygame.quit()
 
     def run(self):
         # Keyboard Input
@@ -254,3 +283,24 @@ class Level:
 
         # Rendering
         self.cameraGroup.render()
+
+        # Screen Effects Processing
+        if self.screenshake and not self.screenshakeFrozen:
+            self.screenshake -= 0.5
+
+        if self.flashing:
+            self.flashing -= (100 - min(self.flashing, 80)) / 20
+            self.flashing = max(self.flashing, 0)
+
+        if self.fading['fadeIn'] > 0:
+            self.fading['current'] = round((self.fading['totalFadeSeconds'][0] - self.fading['fadeIn']) / self.fading['totalFadeSeconds'][0] * 100)
+            self.fading['fadeIn'] -= 1
+        elif self.fading['delay'] > 0:
+            self.fading['current'] = 100
+            self.fading['delay'] -= 1
+        elif self.fading['current'] > 0:
+            self.fading['current'] = round((1 - (self.fading['totalFadeSeconds'][1] - self.fading['fadeOut']) / self.fading['totalFadeSeconds'][1]) * 100)
+            self.fading['fadeOut'] -= 1
+
+        if self.transition:
+            self.transition -= 1
