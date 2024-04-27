@@ -3,6 +3,7 @@ from settings import *
 from tiles import StaticTile, StaticObject, Alarm
 from particles import ParticleSource
 from player import Player
+from npc import Marcus
 from functions import importCutGraphics, importCsvLayout
 from camera import CameraGroup
 
@@ -52,6 +53,9 @@ class Level:
                             sprite = Alarm(x, y, val)
                     elif sType == 'ParticleSources':
                         sprite = ParticleSource(x, y, val, self.displaySurface, self.cameraGroup)
+                    elif sType == 'Npcs':
+                        if val == '0':  # Marcus (Intro)
+                            sprite = Marcus((x, y), self)
 
                     spriteGroup.add(sprite)
 
@@ -101,6 +105,10 @@ class Level:
         # Decoration Setup
         decorationLayout = importCsvLayout(self.levelData.get('Decoration'))
         self.decorationSprites = self.createTileGroup(decorationLayout, 'Decoration')
+
+        # Npcs Setup
+        npcLayout = importCsvLayout(self.levelData.get('Npcs'))
+        self.npcSprites = self.createTileGroup(npcLayout, 'Npcs')
 
         # Player Setup
         playerLayout = importCsvLayout(self.levelData['Player'])
@@ -190,6 +198,7 @@ class Level:
             self.cameraGroup.add(self.futureSaws)
 
         # Adding Basic Sprites (Pt 2)
+        self.cameraGroup.add(self.npcSprites)
         self.cameraGroup.add(self.player)
         self.cameraGroup.add(self.goal)
         if self.inPast:  # Adding Particles depending on current time
