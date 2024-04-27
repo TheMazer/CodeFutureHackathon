@@ -43,3 +43,10 @@ def importCutGraphics(path):
             cutTiles.append(newSurf)
 
     return cutTiles
+
+
+def circleSurf(radius, color):
+    surf = pygame.surface.Surface((radius * 2, radius * 2))
+    pygame.draw.circle(surf, color, (radius, radius), radius)
+    surf.set_colorkey((0, 0, 0))
+    return surf

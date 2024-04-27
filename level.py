@@ -1,6 +1,7 @@
 from settings import *
 
 from tiles import StaticTile, StaticObject, Alarm
+from particles import ParticleSource
 from player import Player
 from functions import importCutGraphics, importCsvLayout
 from camera import CameraGroup
@@ -17,7 +18,7 @@ class Level:
         self.levelParameters = self.levelData.get('Parameters', {})
 
         # Time Travelling
-        self.inPast = False
+        self.inPast = True
         
         # Tilesets
         self.groundTileList = importCutGraphics('assets/images/tilesets/auditoriumTiles.png')
@@ -49,6 +50,8 @@ class Level:
                     elif sType == 'AnimatedObjects':
                         if val == '0':  # Alarm
                             sprite = Alarm(x, y, val)
+                    elif sType == 'ParticleSources':
+                        sprite = ParticleSource(x, y, val, self.displaySurface, self.cameraGroup)
 
                     spriteGroup.add(sprite)
 
@@ -70,6 +73,14 @@ class Level:
         # Past Fades Setup
         pastFadesLayout = importCsvLayout(self.levelData.get('PastFades'))
         self.pastFadesSprites = self.createTileGroup(pastFadesLayout, 'Fades')
+
+        # Particle Sources Setup
+        particleSourcesLayout = importCsvLayout(self.levelData.get('ParticleSources'))
+        self.particleSourcesSprites = self.createTileGroup(particleSourcesLayout, 'ParticleSources')
+
+        # Past Particle Sources Setup
+        pastParticleSourcesLayout = importCsvLayout(self.levelData.get('PastParticleSources'))
+        self.pastParticleSourcesSprites = self.createTileGroup(pastParticleSourcesLayout, 'ParticleSources')
 
         # Animated Objects Setup
         animatedLayout = importCsvLayout(self.levelData.get('AnimatedObjects'))
@@ -182,8 +193,10 @@ class Level:
         self.cameraGroup.add(self.player)
         self.cameraGroup.add(self.goal)
         if self.inPast:  # Adding Particles depending on current time
+            self.cameraGroup.add(self.pastParticleSourcesSprites)
             self.cameraGroup.add(self.pastFadesSprites)
         else:
+            self.cameraGroup.add(self.particleSourcesSprites)
             self.cameraGroup.add(self.futureFadesSprites)
         self.cameraGroup.add(self.fadesSprites)
 
