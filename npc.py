@@ -33,6 +33,8 @@ class Npc(pygame.sprite.Sprite):
         self.screenFadeEffect = levelClass.screenFadeEffect
         self.changeFadeImage = levelClass.changeFadeImage
         self.startScriptedObject = levelClass.startScriptedObject
+        self.addObjective = levelClass.addObjective
+        self.completeObjective = levelClass.completeObjective
         self.createBalloonMessage = levelClass.createBalloonMessage
         self.timeTravel = levelClass.timeTravel
 

@@ -129,6 +129,11 @@ class Level:
         for objective in self.objectives:
             objective.maxWidth = maxWidth
 
+    def completeObjective(self, text):
+        for objective in self.objectives:
+            if objective.text == text:
+                objective.complete()
+
     def screenShakeEffect(self, intensity, stay = False):
         self.screenshake = intensity
         self.screenshakeFrozen = stay

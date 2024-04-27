@@ -1,5 +1,6 @@
 from settings import *
 
+import math
 import textwrap
 
 
@@ -256,3 +257,47 @@ class Hint:
         if self.keyImage:
             self.keyImage.set_alpha(255 * ((self.textPosition // self.printingSpeed) / len(self.text)))
             surface.blit(self.keyImage, self.pos - offset + (16 * len(self.text) / 2 - 12, 20))
+
+
+class Objective:
+    def __init__(self, text):
+        self.text = text
+        self.checkBox = pygame.image.load('assets/images/gui/objectiveCheckbox.png').convert()
+        self.check = pygame.image.load('assets/images/gui/objectiveCheck.png')
+        self.addSound = pygame.mixer.Sound('assets/sounds/gui/questAdd.wav')
+        self.completeSound = pygame.mixer.Sound('assets/sounds/gui/questComplete.wav')
+        self.snip = mainFont.render(self.text, False, 'White')
+        self.textShadow = mainFont.render(self.text, False, '#666666')
+        self.maxWidth = self.snip.get_width()
+        self.frame = 0
+        self.completeFrame = None
+
+    def draw(self, surface, id):
+        # Animation Processing
+        if self.frame < 20:
+            scaleFactor = 1.0 + math.cos(math.pi * self.frame / 40) * 2
+            pos = (screenSize[0] - self.maxWidth - 24, id * (self.snip.get_height() + 16) + 96)
+            scaledCheckBox = pygame.transform.scale(self.checkBox, ( self.checkBox.get_width() * scaleFactor, self.checkBox.get_height() * scaleFactor ))
+            surface.blit(scaledCheckBox, (pos[0] - 48, pos[1] - 8))
+            self.frame += 1
+        else:
+            pos = (screenSize[0] - self.maxWidth - 24, id * (self.snip.get_height() + 16) + 96)
+            surface.blit(self.checkBox, (pos[0] - 48, pos[1] - 8))
+            surface.blit(self.textShadow, (pos[0] + 3, pos[1] + 3))
+            surface.blit(self.snip, pos)
+        if self.completeFrame is not None:
+            scaleFactor = 1.0 + math.cos(math.pi * min(self.frame - self.completeFrame, 20) / 40) * 2
+            scaledCheck = pygame.transform.scale(self.check, (self.check.get_width() * scaleFactor, self.check.get_height() * scaleFactor))
+            surface.blit(scaledCheck, (pos[0] - 48, pos[1] - 8))
+
+            alpha = max(80, 255 * 3 - (self.frame - self.completeFrame) * 6)
+            self.checkBox.set_alpha(alpha)
+            self.snip.set_alpha(alpha)
+            self.textShadow.set_alpha(alpha)
+
+            self.frame += 1
+
+    def complete(self):
+        self.completeFrame = self.frame
+        self.completeSound.set_volume(self.addSound.get_volume() * 2)
+        self.completeSound.play()
