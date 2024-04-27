@@ -78,6 +78,71 @@ class mButton:
             self.textShadowColor = '#666666'
 
 
+class TimeTravelButton(mButton):
+    def __init__(self, surface, inPast = True, interfaceVolume = 100):
+        super().__init__('В будущее' if inPast else 'В прошлое', screenSize[1] - 256, surface, interfaceVolume, screenSize[0] - 192)
+
+        self.pastSprite = pygame.image.load('assets/images/gui/travelButtonInPast.png').convert_alpha()
+        self.futureSprite = pygame.image.load('assets/images/gui/travelButtonInFuture.png').convert_alpha()
+        self.rotating = 0
+
+        self.hoverSound.set_volume(0.5 * self.interfaceVolume)
+        self.releaseSound.set_volume(0.5 * self.interfaceVolume)
+
+        self.btnSprite = self.pastSprite if inPast else self.futureSprite
+        self.btnRect = pygame.Rect(
+            (self.x - self.btnSprite.get_width() / 2, self.y),
+            (self.btnSprite.get_width(), self.btnSprite.get_height())
+        )
+        self.btnRect.y += 32
+        self.btnRect.height -= 64
+        self.textRect = dialogueFont.render(self.text, False, self.textColor).get_rect(center=self.btnSprite.get_rect().midbottom)
+        self.textRect.y += 24
+
+    def changeText(self, newText):
+        self.text = newText
+        self.textRect = dialogueFont.render(newText, False, self.textColor).get_rect(center=self.btnSprite.get_rect().midbottom)
+        self.textRect.y += 24
+
+    def draw(self):
+        rotatedSprite = pygame.transform.rotate(self.btnSprite, -self.rotating)
+        rotatedRect = rotatedSprite.get_rect(center=self.btnRect.center)
+        self.surface.blit(rotatedSprite, rotatedRect)
+        self.surface.blit(dialogueFont.render(self.text, False, self.textShadowColor), (self.textRect.x + self.x - self.btnSprite.get_width() / 2 + 3, self.textRect.y + self.y + 3 - 32))
+        self.surface.blit(dialogueFont.render(self.text, False, self.textColor), (self.textRect.x + self.x - self.btnSprite.get_width() / 2, self.textRect.y + self.y - 32))
+
+    def checkClick(self):
+        mousePos = pygame.mouse.get_pos()
+        if self.btnRect.collidepoint(mousePos):
+            self.textColor = 'Yellow'
+            self.textShadowColor = '#666600'
+            if self.rotating < 30:
+                self.rotating += max(1, (30 - self.rotating) // 4)
+            if not self.hovered:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                self.hoverSound.play()
+            self.hovered = True
+            if pygame.mouse.get_pressed()[0]:
+                self.textColor = '#B2B200'
+                self.textShadowColor = '#474700'
+                self.pressed = True
+            else:
+                if self.pressed:
+                    pygame.mouse.set_cursor(0)
+                    self.releaseSound.play()
+                    self.pressed = False
+                    return True
+        else:
+            if self.rotating > 0:
+                self.rotating -= max(1, self.rotating // 4)
+            if self.hovered:
+                pygame.mouse.set_cursor(0)
+            self.hovered = False
+            self.pressed = False
+            self.textColor = 'White'
+            self.textShadowColor = '#666666'
+
+
 # Balloon Backgrounds Preloading
 balloonBackgrounds = []
 for i in range(1, 7):

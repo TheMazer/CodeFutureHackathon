@@ -1,7 +1,7 @@
 from settings import *
 
 import random
-from interactive import mButton
+from interactive import TimeTravelButton
 
 
 class CameraGroup(pygame.sprite.Group):
@@ -20,7 +20,9 @@ class CameraGroup(pygame.sprite.Group):
         self.fadeImage = None
 
         # Time Travel Button & Gui
-        self.travelBtn = mButton('Time Travel', 900, self.displaySurface)
+        self.travelBtn = TimeTravelButton(self.displaySurface, levelClass.inPast, int(levelClass.config.get('interfaceVolume', 'Settings')))
+        self.timeTravelSound = pygame.mixer.Sound('assets/sounds/effects/TimeTravel.wav')
+        self.timeTravelSound.set_volume(int(levelClass.config.get('effectsVolume', 'Settings')) / 100)
 
     def render(self):
         # Cleaning Display
@@ -63,6 +65,13 @@ class CameraGroup(pygame.sprite.Group):
             if self.travelBtn.checkClick():
                 inPast = self.levelClass.timeTravel()
                 self.travelBtn.hovered = False
+                self.timeTravelSound.play()
+                if inPast:
+                    self.travelBtn.changeText('В будущее')
+                    self.travelBtn.btnSprite = self.travelBtn.pastSprite
+                else:
+                    self.travelBtn.changeText('В прошлое')
+                    self.travelBtn.btnSprite = self.travelBtn.futureSprite
 
         if hasTimeMachine:
             self.travelBtn.draw()

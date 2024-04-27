@@ -9,6 +9,7 @@ class Game:
         pygame.init()
         self.screen = pygame.display.set_mode(screenSize, flags=screenFlags)
         pygame.display.set_caption('Tempus Corp')
+        pygame.display.set_icon(pygame.image.load('assets/images/gui/icon.png'))
         self.clock = pygame.time.Clock()
         self.config = Config('config.ini')
 
