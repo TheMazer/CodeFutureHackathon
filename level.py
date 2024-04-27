@@ -4,9 +4,8 @@ import threading
 from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, VerticalTrigger, Platform, Helicopter, Saw, MidDoor, Alarm
 from particles import ParticleSource, ParticleSpawner
 from player import Player
-from npc import Marcus
-from functions import importCutGraphics, importCsvLayout, getLevelSize
-from interactive import BalloonMessage, Hint, Objective
+from npc import Marcus, MarcusAtCorps, HistoryTeacher, FranceTeacher, MathsTeacher
+from functions import importFolder, importCutGraphics, importCsvLayout, getLevelSize
 from interactive import BalloonMessage, Hint, Objective, FoundItemAnimation
 from camera import CameraGroup
 
