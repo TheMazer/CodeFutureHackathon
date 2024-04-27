@@ -396,3 +396,32 @@ class Objective:
         self.completeFrame = self.frame
         self.completeSound.set_volume(self.addSound.get_volume() * 2)
         self.completeSound.play()
+
+
+class FoundItemAnimation:
+    def __init__(self, type, label):
+        self.type = type
+        self.label = label
+
+        self.image = pygame.image.load('assets/images/gui/items/' + type + '.png')
+        self.mask = pygame.mask.from_surface(self.image).to_surface()
+        self.mask.set_colorkey('Black')
+
+        self.heading = mainFont.render('Получен предмет', False, 'White')
+        self.label = dialogueFont.render(label, False, 'White')
+
+        self.foundItemSound = pygame.mixer.Sound('assets/sounds/gui/foundItem.wav')
+        self.frame = 0
+
+    def draw(self, surf):
+        self.mask.set_alpha(255 * 2 - self.frame * 3)
+        self.image.set_alpha(255 * 4 - self.frame * 3)
+        self.heading.set_alpha(255 * 4 - self.frame * 3)
+        self.label.set_alpha(min(255 / 100 * self.frame, 255 * 4 - self.frame * 3))
+
+        surf.blit(self.heading, (screenSize[0] / 2 - self.heading.get_width() / 2, screenSize[1] / 3 - 128))
+        surf.blit(self.image, (screenSize[0] / 2 - self.image.get_width() / 2, screenSize[1] / 3 - self.image.get_height() / 2))
+        surf.blit(self.mask, (screenSize[0] / 2 - self.image.get_width() / 2, screenSize[1] / 3 - self.image.get_height() / 2))
+        surf.blit(self.label, (screenSize[0] / 2 - self.label.get_width() / 2, screenSize[1] / 3 + 128))
+
+        self.frame += 1

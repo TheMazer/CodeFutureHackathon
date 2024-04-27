@@ -36,6 +36,7 @@ class Npc(pygame.sprite.Sprite):
         self.addObjective = levelClass.addObjective
         self.completeObjective = levelClass.completeObjective
         self.createBalloonMessage = levelClass.createBalloonMessage
+        self.createFoundItemAnimation = levelClass.createFoundItemAnimation
         self.timeTravel = levelClass.timeTravel
 
     def importNpcAssets(self, npc_type):

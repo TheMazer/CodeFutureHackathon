@@ -19,6 +19,8 @@ class CameraGroup(pygame.sprite.Group):
         self.flashingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.fadingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.fadeImage = None
+        self.guiParticles = []
+        self.foundItemAnimations = []
 
         # Background
         self.backgroundSurface = pygame.Surface((levelClass.levelSize[0] * tileSize, levelClass.levelSize[1] * tileSize))
@@ -140,6 +142,16 @@ class CameraGroup(pygame.sprite.Group):
         if flashing:
             self.flashingSurf.fill((255, 255, 255, min(flashing / 100 * 255, 255)))
             self.displaySurface.blit(self.flashingSurf, (0, 0))
+
+        # Gui Particles Processing
+        for particleSource in self.guiParticles:
+            particleSource.update(pygame.Vector2(0, 0))
+
+        # Found Item Animations Processing
+        for foundItemAnimation in self.foundItemAnimations:
+            foundItemAnimation.draw(self.displaySurface)
+            if foundItemAnimation.frame > 360:
+                self.foundItemAnimations.remove(foundItemAnimation)
 
         # Fading
         fading = self.levelClass.fading['current']

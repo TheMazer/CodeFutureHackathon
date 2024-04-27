@@ -1,12 +1,13 @@
 from settings import *
 
 import threading
-from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, Alarm
-from particles import ParticleSource
+from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, VerticalTrigger, Platform, Helicopter, Saw, MidDoor, Alarm
+from particles import ParticleSource, ParticleSpawner
 from player import Player
 from npc import Marcus
 from functions import importCutGraphics, importCsvLayout, getLevelSize
 from interactive import BalloonMessage, Hint, Objective
+from interactive import BalloonMessage, Hint, Objective, FoundItemAnimation
 from camera import CameraGroup
 
 
@@ -113,6 +114,20 @@ class Level:
         soundEffect.play(fade_ms=fade * 1000, loops=loops)
         return soundEffect
 
+    def createGuiParticles(self, type, variant = 'source', x = screenSize[0] / 2, y = screenSize[1] / 3, lifetime = 240):
+        if variant.lower() == 'source':
+            sprite = ParticleSource(x, y, type, self.displaySurface, self.cameraGroup, lifetime)
+        else:
+            sprite = ParticleSpawner(x, y, type, self.displaySurface, self.cameraGroup)
+        self.cameraGroup.guiParticles.append(sprite)
+
+    def createFoundItemAnimation(self, type, label = ''):
+        self.createGuiParticles('4')
+        foundItemAnimation = FoundItemAnimation(type, label)
+        foundItemAnimation.foundItemSound.set_volume(0.5 * int(self.config.get('effectsVolume', 'Settings')) / 100)
+        foundItemAnimation.foundItemSound.play()
+        self.cameraGroup.foundItemAnimations.append(foundItemAnimation)
+
     def createBalloonMessage(self, messages, pos, speed = 3, color = 'White', callback = None, voice = 'beep'):
         if pos == 'player': pos = self.player.sprite.rect.topleft  # Player Speech
         message = BalloonMessage(messages, pos, speed, color, voice, self.switchPlayerControllability, callback)
@@ -176,6 +191,17 @@ class Level:
                         sprite = StaticTile(x, y, tileSurface)
                     elif sType == 'Decoration':
                         sprite = StaticObject(x, y, val)
+
+                        # Special Objects
+                        if val == '179':
+                            sprite.trim(31, 62)  # Trimming
+                        elif val == '180':
+                            particleSpawner = ParticleSpawner(x + 2 * tileSize, y - 3 * tileSize, 'leaf', self.displaySurface, self.cameraGroup)
+                            self.particleSpawnersSprites.add(particleSpawner)  # Leaf Particles
+                        elif val == '187':
+                            particleSpawner = ParticleSpawner(x + 2 * tileSize, y - 3 * tileSize, 'fadeLeaf', self.displaySurface, self.cameraGroup)
+                            self.futureParticleSpawnersSprites.add(particleSpawner)  # Fade Leaf Particles
+
                     elif sType == 'ScriptedObjects':
                         if val == '0':  # Energy Explosion
                             sprite = EnergyExplosion(x, y)
@@ -219,6 +245,15 @@ class Level:
         # Past Particle Sources Setup
         pastParticleSourcesLayout = importCsvLayout(self.levelData.get('PastParticleSources'))
         self.pastParticleSourcesSprites = self.createTileGroup(pastParticleSourcesLayout, 'ParticleSources')
+
+        # Particle Spawners Setup
+        self.particleSpawnersSprites = pygame.sprite.Group()
+
+        # Future Particle Spawners Setup
+        self.futureParticleSpawnersSprites = pygame.sprite.Group()
+
+        # Past Particle Spawners Setup
+        self.pastParticleSpawnersSprites = pygame.sprite.Group()
 
         # Scripted Objects Setup
         scriptedObjectsLayout = importCsvLayout(self.levelData['ScriptedObjects'])
@@ -351,10 +386,13 @@ class Level:
         self.cameraGroup.add(self.npcSprites)
         self.cameraGroup.add(self.player)
         self.cameraGroup.add(self.goal)
+        self.cameraGroup.add(self.particleSpawnersSprites)
         if self.inPast:  # Adding Particles depending on current time
+            self.cameraGroup.add(self.pastParticleSpawnersSprites)
             self.cameraGroup.add(self.pastParticleSourcesSprites)
             self.cameraGroup.add(self.pastFadesSprites)
         else:
+            self.cameraGroup.add(self.futureParticleSpawnersSprites)
             self.cameraGroup.add(self.particleSourcesSprites)
             self.cameraGroup.add(self.futureFadesSprites)
         if not self.disableFades:
@@ -423,9 +461,11 @@ class Level:
         self.cameraGroup.add(self.player)
         self.cameraGroup.add(self.goal)
         if self.inPast:  # Adding Particles depending on current time and changing Background image
+            self.cameraGroup.add(self.pastParticleSpawnersSprites)
             self.cameraGroup.add(self.pastParticleSourcesSprites)
             self.cameraGroup.add(self.pastFadesSprites)
         else:
+            self.cameraGroup.add(self.futureParticleSpawnersSprites)
             self.cameraGroup.add(self.particleSourcesSprites)
             self.cameraGroup.add(self.futureFadesSprites)
         if not self.disableFades:
