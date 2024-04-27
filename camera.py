@@ -45,7 +45,8 @@ class CameraGroup(pygame.sprite.Group):
 
             offsetPos = sprite.rect.topleft - self.offset
             if sprite.drawable and sprite.rect.colliderect(cameraViewRect):
-                self.displaySurface.blit(sprite.image, offsetPos)
+                blendMode = sprite.blendMode if hasattr(sprite, 'blendMode') else 0
+                self.displaySurface.blit(sprite.image, offsetPos, special_flags = blendMode)
 
         # Drawing Balloon Messages
         balloonMessages = self.levelClass.balloonMessages
@@ -78,6 +79,13 @@ class CameraGroup(pygame.sprite.Group):
         if fading:
             self.fadingSurf.fill((0, 0, 0, min(fading / 100 * 255, 255)))
             self.displaySurface.blit(self.fadingSurf, (0, 0))
+
+        # Fade Image
+        if self.fadeImage is not None:
+            self.displaySurface.blit(self.fadeImage, (
+                screenSize[0] / 2 - self.fadeImage.get_width() / 2,
+                screenSize[1] / 2 - self.fadeImage.get_height() / 2
+            ))
 
         # Transition
         transition = self.levelClass.transition

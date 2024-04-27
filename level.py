@@ -42,7 +42,7 @@ class Level:
         self.balloonMessages = []
 
         # Time Travelling
-        self.inPast = True
+        self.inPast = True if self.levelParameters.get('startTime', 'future') == 'past' else False
         self.hasTimeMachine = True  # Todo: Replace with this: self.levelParameters.get('hasTimeMachine', 0)
         self.lastPlayerPositions = {'past': (0.0, 0.0), 'future': (0.0, 0.0), 'init': (0, 0)}
 
@@ -53,7 +53,8 @@ class Level:
         # Level Setup
         self.setupLevel()
 
-        self.levelMusic.play(loops = -1)
+        self.levelMusic.play(loops=-1)
+        pygame.mouse.set_cursor(0)
 
     # Game Management Functions
     def startScriptedObject(self, event, destroy = False):
@@ -75,13 +76,14 @@ class Level:
         else:
             self.hasTimeMachine = not self.hasTimeMachine
 
-    def setBackgroundMusic(self, path, volume = 0.2, fade = 2, loops = -1):
+    def setBackgroundMusic(self, path, volume=0.2, fade=2, loops=-1):
         if path != 'stop':
             def changingMusic():
                 self.levelMusic.stop()
                 self.levelMusic = pygame.mixer.Sound(path)
                 self.levelMusic.set_volume(volume * int(self.config.get('musicVolume', 'Settings')) / 100)
                 self.levelMusic.play(loops=loops)
+
             self.levelMusic.fadeout(int(fade * 1000))
             threading.Timer(fade, changingMusic).start()
         else:
@@ -114,6 +116,9 @@ class Level:
             'fadeOut': fadeOut * fps,
             'totalFadeSeconds': [fadeIn * fps, fadeOut * fps]
         }
+
+    def changeFadeImage(self, imageSurface):
+        self.cameraGroup.fadeImage = imageSurface
 
     # noinspection PyTypeChecker, PyUnboundLocalVariable
     def createTileGroup(self, layout, sType):
@@ -275,12 +280,17 @@ class Level:
         underBgDecoration = importCsvLayout(self.levelData.get('UnderBgDecoration'))
         self.underBgDecorationSprites = self.createTileGroup(underBgDecoration, 'Decoration')
 
+        # What Scripted Objects will add to Camera depends on Time Condition
+        timeCondBgScriptedObjects = pygame.sprite.Group([sprite for sprite in self.bgScriptedObjectsSprites if not hasattr(sprite, 'inPast') or sprite.inPast == self.inPast])
+        timeCondScriptedObjects = pygame.sprite.Group([sprite for sprite in self.scriptedObjectsSprites if not hasattr(sprite, 'inPast') or sprite.inPast == self.inPast])
+
         # Adding Basic Sprites (Pt 1)
         self.cameraGroup.add(self.underBgDecorationSprites)
         self.cameraGroup.add(self.backgroundSprites)
         self.cameraGroup.add(self.groundSprites)
         self.cameraGroup.add(self.bgDecorationSprites)
         self.cameraGroup.add(self.decorationSprites)
+        self.cameraGroup.add(timeCondBgScriptedObjects)
 
         # Adding sprites depending on current time
         if self.inPast:
@@ -311,6 +321,7 @@ class Level:
             self.cameraGroup.add(self.particleSourcesSprites)
             self.cameraGroup.add(self.futureFadesSprites)
         self.cameraGroup.add(self.fadesSprites)
+        self.cameraGroup.add(timeCondScriptedObjects)
 
         self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.decorationSprites.sprites()
 
@@ -420,6 +431,10 @@ class Level:
     def input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
+            for thread in threading.enumerate():
+                if isinstance(thread, threading.Timer):
+                    thread.cancel()
+            pygame.mouse.set_visible(True)
             pygame.quit()
 
     def run(self):

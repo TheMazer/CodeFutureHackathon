@@ -18,7 +18,8 @@ dialogueFont = pygame.font.Font('assets/fonts/PressStart2P.ttf', 16)
 level_1 = {
     'Parameters': {
         'playerFacingRight': False,
-        'musicVolume': 0.2
+        'musicVolume': 0.2,
+        'musicSwitching': False
     },
 
     'ScriptedObjects': 'levels/1/level1_ScriptedObjects.csv',
