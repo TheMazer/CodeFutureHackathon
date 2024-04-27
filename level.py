@@ -25,6 +25,7 @@ class Level:
         # Level Data
         self.levelData = levelData
         self.levelParameters = self.levelData.get('Parameters', {})
+        self.disableFades = self.config.get('disableFades', 'Settings') == 'True'
 
         # Screen Effects
         self.screenshake = 0
@@ -199,8 +200,9 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
 
         # Fades Setup
-        fadesLayout = importCsvLayout(self.levelData.get('Fades'))
-        self.fadesSprites = self.createTileGroup(fadesLayout, 'Fades')
+        if not self.disableFades:
+            fadesLayout = importCsvLayout(self.levelData.get('Fades'))
+            self.fadesSprites = self.createTileGroup(fadesLayout, 'Fades')
 
         # Future Fades Setup
         futureFadesLayout = importCsvLayout(self.levelData.get('FutureFades'))
@@ -355,7 +357,8 @@ class Level:
         else:
             self.cameraGroup.add(self.particleSourcesSprites)
             self.cameraGroup.add(self.futureFadesSprites)
-        self.cameraGroup.add(self.fadesSprites)
+        if not self.disableFades:
+            self.cameraGroup.add(self.fadesSprites)
         self.cameraGroup.add(timeCondScriptedObjects)
 
         self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.decorationSprites.sprites()
@@ -425,7 +428,8 @@ class Level:
         else:
             self.cameraGroup.add(self.particleSourcesSprites)
             self.cameraGroup.add(self.futureFadesSprites)
-        self.cameraGroup.add(self.fadesSprites)
+        if not self.disableFades:
+            self.cameraGroup.add(self.fadesSprites)
         self.cameraGroup.add(timeCondScriptedObjects)
 
         # Resetting Player's Direction to prevent from noclipping
@@ -564,4 +568,5 @@ class Level:
                 if isinstance(thread, threading.Timer):
                     thread.cancel()
             pygame.mouse.set_visible(True)
-            pygame.quit()
+            self.levelMusic.stop()
+            self.createMenu()

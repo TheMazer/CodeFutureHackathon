@@ -4,7 +4,7 @@ import math
 import textwrap
 
 
-class mButton:
+class Button:
     def __init__(self, text, y, surface, interfaceVolume = 100, x=-1):
         self.pressed = False
         self.hovered = False
@@ -79,7 +79,7 @@ class mButton:
             self.textShadowColor = '#666666'
 
 
-class TimeTravelButton(mButton):
+class TimeTravelButton(Button):
     def __init__(self, surface, inPast = True, interfaceVolume = 100):
         super().__init__('В будущее' if inPast else 'В прошлое', screenSize[1] - 256, surface, interfaceVolume, screenSize[0] - 192)
 
@@ -142,6 +142,101 @@ class TimeTravelButton(mButton):
             self.pressed = False
             self.textColor = 'White'
             self.textShadowColor = '#666666'
+
+
+class Slider:
+    def __init__(self, surface: pygame.Surface, x, y, initialValue: float, label = '', min: int = 0,
+                 max: int = 100, interfaceVolume = 100, editingFunc = None, doneFunc = None, type = None):
+        self.surface = surface
+        self.label = label
+        self.x = x
+        self.y = y
+        self.min = min
+        self.max = max
+
+        self.editingFunction = editingFunc
+        self.doneFunction = doneFunc
+        self.type = type
+
+        self.base = pygame.image.load('assets/images/gui/sliderBase.png')
+        self.button = pygame.image.load('assets/images/gui/sliderButton.png')
+        self.buttonHover = pygame.image.load('assets/images/gui/sliderButtonHover.png')
+        self.buttonPressed = pygame.image.load('assets/images/gui/sliderButtonPressed.png')
+
+        self.buttonRect = pygame.Rect((
+            self.x + self.base.get_width() / 100 * initialValue - self.button.get_width() / 2,
+            self.y + self.base.get_height() / 2 - self.button.get_height() / 2
+        ), self.button.get_size())
+        self.buttonSprite = self.button
+
+        self.hoverSound = pygame.mixer.Sound('assets/sounds/gui/buttonHover.wav')
+        self.releaseSound = pygame.mixer.Sound('assets/sounds/gui/buttonRelease.wav')
+        self.interfaceVolume = interfaceVolume / 100
+        self.effectsVolume = None
+
+        self.value = initialValue
+        self.hovered = False
+        self.pressed = False
+
+    def update(self):
+        mousePos = pygame.mouse.get_pos()
+        if self.buttonRect.collidepoint(mousePos):
+            self.buttonSprite = self.buttonHover
+            if not self.hovered:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                self.hoverSound.set_volume(0.5 * self.interfaceVolume)
+                self.hoverSound.play()
+                self.hovered = True
+            if pygame.mouse.get_pressed()[0]:
+                self.buttonSprite = self.buttonPressed
+                self.pressed = True
+                newCenterX = min(max(mousePos[0], self.x + 39), self.x + self.base.get_width() - 39)
+                self.buttonRect.centerx = newCenterX
+                self.value = ((self.buttonRect.centerx - (self.x + 39)) / (self.base.get_width() - 39 * 2)) * (self.max - self.min) + self.min
+                if self.editingFunction is not None:
+                    self.editingFunction(self.type, self.value)
+            else:
+                if self.pressed:
+                    if self.doneFunction is not None:
+                        self.doneFunction(self.type, self.value)
+                    if self.type != 'musicVolume':
+                        self.releaseSound.set_volume(
+                            0.5 * (self.interfaceVolume if self.effectsVolume is None else self.effectsVolume))
+                        self.releaseSound.play()
+                    self.pressed = False
+        else:
+            if pygame.mouse.get_pressed()[0] and self.pressed:
+                newCenterX = min(max(mousePos[0], self.x + 39), self.x + self.base.get_width() - 39)
+                self.buttonRect.centerx = newCenterX
+                self.value = ((self.buttonRect.centerx - (self.x + 39)) / (self.base.get_width() - 39 * 2)) * (self.max - self.min) + self.min
+                if self.editingFunction is not None:
+                    self.editingFunction(self.type, self.value)
+            elif self.pressed:
+                if self.doneFunction is not None:
+                    self.doneFunction(self.type, self.value)
+                if self.type != 'musicVolume':
+                    self.releaseSound.set_volume(
+                        0.5 * (self.interfaceVolume if self.effectsVolume is None else self.effectsVolume))
+                    self.releaseSound.play()
+                self.pressed = False
+            elif self.hovered:
+                pygame.mouse.set_cursor(0)
+                self.hovered = False
+                self.buttonSprite = self.button
+
+    def draw(self):
+        self.surface.blit(self.base, (self.x, self.y))
+        self.surface.blit(self.buttonSprite, self.buttonRect)
+
+        snip = mainFont.render(str(int(self.value)), False, '#006600' if int(self.value) > 0 else '#660000')
+        self.surface.blit(snip, pygame.Vector2(self.x, self.y + self.base.get_height() / 2) - pygame.Vector2(snip.get_size()) / 2 + pygame.Vector2(-29, 3))
+        self.surface.blit(mainFont.render(str(int(self.value)), False, '#aaffaa' if int(self.value) > 0 else '#ffaaaa'),
+                          pygame.Vector2(self.x, self.y + self.base.get_height() / 2) - pygame.Vector2(snip.get_size()) / 2 + pygame.Vector2(-32, 0))
+
+        textX = self.x + self.base.get_width() + 16
+        textY = self.y + self.base.get_height() / 2 - 10
+        self.surface.blit(mainFont.render(self.label, False, '#666666'), (textX + 3, textY + 3))
+        self.surface.blit(mainFont.render(self.label, False, 'White'), (textX, textY))
 
 
 # Balloon Backgrounds Preloading

@@ -93,6 +93,18 @@ def importCutGraphics(path):
     return cutTiles
 
 
+def centerImage(image, y, surface):
+    surface.blit(image, (surface.get_width() / 2 - image.get_width() / 2, y))
+
+
+def centerText(text, y, surface, shadow = False, font = mainFont):
+    renderedText = font.render(text, False, 'White')
+    if shadow:
+        renderedTextShadow = font.render(text, False, '#666666')
+        surface.blit(renderedTextShadow, (surface.get_width() / 2 - renderedTextShadow.get_width() / 2 + 3, y + 3))
+    surface.blit(renderedText, (surface.get_width() / 2 - renderedText.get_width() / 2, y))
+
+
 def circleSurf(radius, color):
     surf = pygame.surface.Surface((radius * 2, radius * 2))
     pygame.draw.circle(surf, color, (radius, radius), radius)

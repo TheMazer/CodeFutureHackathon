@@ -84,5 +84,8 @@ level_2 = {
     'LevelMusic': 'assets/sounds/music/Arcade Machine.mp3'
 }
 
+level_3 = {}
+
 # Defining Next Levels
 level_1['nextLevel'] = level_2
+level_2['nextLevel'] = level_3
