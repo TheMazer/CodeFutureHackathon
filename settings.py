@@ -19,6 +19,7 @@ level_1 = {
     'Parameters': {
         'playerFacingRight': False,
         'musicVolume': 0.2,
+        'finishTime': 'past',
         'musicSwitching': False
     },
 

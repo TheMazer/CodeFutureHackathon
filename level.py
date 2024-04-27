@@ -17,6 +17,11 @@ class Level:
         self.createLevel = createLevel
         self.config = config
 
+        # Level Changing
+        self.forceFinish = False
+        self.death = False
+        self.finishProgress = 0
+
         # Level Data
         self.levelData = levelData
         self.levelParameters = self.levelData.get('Parameters', {})
@@ -428,14 +433,49 @@ class Level:
                     sprite.drawable = False  # Defining Goal Visibility
                     self.goal.add(sprite)
 
-    def input(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
-            for thread in threading.enumerate():
-                if isinstance(thread, threading.Timer):
-                    thread.cancel()
-            pygame.mouse.set_visible(True)
-            pygame.quit()
+    def checkFinish(self):
+        if self.finishProgress > 0:
+            self.finishProgress += 1
+            self.transition = self.finishProgress
+            self.player.sprite.direction = pygame.Vector2(0, 0)
+            self.player.sprite.transparency = min(100, round(300 * self.finishProgress / 70))
+            if self.finishProgress >= 70:
+                for thread in threading.enumerate():
+                    if isinstance(thread, threading.Timer):
+                        thread.cancel()
+                pygame.mouse.set_visible(True)
+                if not self.death:
+                    self.createLevel(self.levelData['nextLevel'])
+                else:
+                    if self.inPast and self.lastPlayerPositions['past'] != (0, 0):
+                        pos = self.lastPlayerPositions['past']
+                    elif not self.inPast and self.lastPlayerPositions['future'] != (0, 0):
+                        pos = self.lastPlayerPositions['future']
+                    else:
+                        pos = self.lastPlayerPositions['init']
+
+                    self.player.sprite.reset(pos)
+                    self.playerControllability = True
+                    self.death = False
+                    self.finishProgress = 0
+                    self.transition = 60
+        else:
+            if not self.levelParameters:
+                timeCond = 1
+            elif self.levelParameters.get('finishTime') == 'past':
+                timeCond = self.inPast
+            else:
+                timeCond = not self.inPast
+
+            player_sprite = self.player.sprite
+            goal_collided = pygame.sprite.spritecollide(player_sprite, self.goal, False)
+
+            if (goal_collided and timeCond) or self.forceFinish or self.death:
+                if not self.death: self.levelMusic.fadeout(2000)
+                else: self.player.sprite.damageTakenSound.play()
+                self.switchPlayerControllability(False)
+                self.player.sprite.playerGravity = 0
+                self.finishProgress = 1
 
     def run(self):
         # Keyboard Input
@@ -443,6 +483,9 @@ class Level:
 
         # Rendering
         self.cameraGroup.render()
+
+        # Checking Collisions
+        self.checkFinish()
 
         # Screen Effects Processing
         if self.screenshake and not self.screenshakeFrozen:
@@ -464,3 +507,12 @@ class Level:
 
         if self.transition:
             self.transition -= 1
+
+    def input(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            for thread in threading.enumerate():
+                if isinstance(thread, threading.Timer):
+                    thread.cancel()
+            pygame.mouse.set_visible(True)
+            pygame.quit()
