@@ -28,11 +28,13 @@ class Npc(pygame.sprite.Sprite):
         self.setBackgroundMusic = levelClass.setBackgroundMusic
         self.playSound = levelClass.playSound
         self.switchPlayerControllability = levelClass.switchPlayerControllability
+        self.switchTimeMachine = levelClass.switchTimeMachine
         self.screenShakeEffect = levelClass.screenShakeEffect
         self.screenFlashEffect = levelClass.screenFlashEffect
         self.screenFadeEffect = levelClass.screenFadeEffect
         self.changeFadeImage = levelClass.changeFadeImage
         self.startScriptedObject = levelClass.startScriptedObject
+        self.triggerNpc = levelClass.triggerNpc
         self.addObjective = levelClass.addObjective
         self.completeObjective = levelClass.completeObjective
         self.createBalloonMessage = levelClass.createBalloonMessage
@@ -166,3 +168,160 @@ class Marcus(Npc):
         threading.Timer(10, self.changeFadeImage, [None]).start()
         threading.Timer(12.2, self.setBackgroundMusic, ['assets/sounds/music/Washy Noise.wav', 0.5]).start()
         threading.Timer(13, self.createBalloonMessage, [['Профессор!?'], 'player', 10, (255, 50, 50)]).start()
+
+
+class MarcusAtCorps(Npc):
+    def __init__(self, pos, levelClass):
+        super().__init__('Marcus', pos, levelClass)
+        self.readyToCall = False
+        self.timeCond = 'past'
+        self.animationSpeed = 0.05
+        self.speed = 0
+
+        self.logo = pygame.image.load('assets/images/gui/logo.png')
+        self.credits1 = pygame.image.load('assets/images/gui/credits1.png')
+        self.credits2 = pygame.image.load('assets/images/gui/credits2.png')
+
+    def storytelling(self):
+        self.noticing()
+
+    def noticing(self):
+        self.createBalloonMessage(['...и тогда... !?'], self.pos, speed = 7, voice = 'synth', callback = self.surprising)
+        self.completeObjective('Найти профессора')
+
+    def surprising(self):
+        self.facingRight = False
+        self.createBalloonMessage(['Алексей!?', 'Ты что тут делаешь?'], self.pos, voice = 'synth', callback=self.uhm)
+
+    def uhm(self):
+        self.createBalloonMessage(['Эхм...'], self.pos, speed = 5, voice = 'synth', callback = self.presenting)
+
+    def presenting(self):
+        self.facingRight = True
+        self.status = 'pointingRight'
+        self.createBalloonMessage(['Это Алексей — мой помощник, вместе мы прибыли из будущего!'], self.pos, speed = 5, voice = 'synth', callback = self.ourMission)
+
+    def ourMission(self):
+        self.status = 'idle'
+        self.createBalloonMessage(['И хотим улучшить методы обучения и воспитания в кадетских корпусах вашего времени!'],
+            self.pos, speed = 5, voice = 'synth', callback = self.triggerHistoryTeacher)
+
+    def triggerHistoryTeacher(self):
+        self.triggerNpc('HistoryTeacher', 'storytelling', [self.justification])
+
+    def justification(self):
+        self.createBalloonMessage([
+            'Тем не менее, у нас методы развиты также отлично!',
+            'Почему бы не обменяться опытом и вспомнить историю кадетского образования?'
+        ], self.pos, voice = 'synth', callback = self.triggerFranceTeacher)
+
+    def triggerFranceTeacher(self):
+        self.triggerNpc('FranceTeacher', 'storytelling')
+
+    def portableTimeTravellingDevice(self):
+        self.facingRight = False
+        self.createBalloonMessage([
+            'Алексей, можно тебе поручить задание?',
+            'Возьми моё портативное устройство перемещения',
+            'Оно позволит тебе путешествовать по временной линии.'
+        ], self.pos, voice = 'synth', callback = self.givePTTDevice)
+
+    def givePTTDevice(self):
+        threading.Timer(6, self.quest).start()
+        self.createFoundItemAnimation('PTTD', 'Портативная машина времени')
+        self.switchPlayerControllability(False)
+
+    def quest(self):
+        self.createBalloonMessage([
+            'Найди мою тетрадку с записями об основных нововведениях в истории кадетских корпусов.',
+            'А мы ещё поговорим'
+        ], self.pos, voice = 'synth', callback = self.givingQuest)
+
+    def givingQuest(self):
+        self.facingRight = True
+        self.completeObjective('Понять, что произошло')
+        self.addObjective('Найти Тетрадь профессора')
+        threading.Timer(1, self.switchTimeMachine, [True, True]).start()
+        self.readyToCall = True
+
+    def phoneCall(self):
+        threading.Timer(5, self.createPhoneCall, [[
+            'И снова здравствуй, Алексей! Место, в котором ты находишься, называется Мидтайм, это межвременной карман, где временные потоки переплетаются.',
+            'Тебе нужно найти дверь, ведущую в мой кабинет, чтобы найти тетрадь с важными записями. Будь осторожен!'
+        ]], {'speed': 3, 'color': 'White', 'voice': 'synth', 'name': 'Профессор'}).start()
+        self.readyToCall = False
+
+    def questComplete(self):
+        self.facingRight = False
+        self.createBalloonMessage([
+            'Ты справился, Алексей!',
+            'А теперь нам предстоит ещё много работы!'
+        ], self.pos, voice='synth', callback = self.finish)
+
+    def finish(self):
+        self.switchPlayerControllability(False)
+        self.screenFadeEffect(3, 1000, 1)
+        self.setBackgroundMusic('stop', fade = 3)
+        pygame.mouse.set_visible(False)
+        threading.Timer(3.2, self.playSound, ['assets/sounds/effects/Whoosh Hit.wav', 0.5]).start()
+        threading.Timer(4, self.changeFadeImage, [self.logo]).start()
+        threading.Timer(10, self.changeFadeImage, [self.credits1]).start()
+        threading.Timer(20, self.changeFadeImage, [self.credits2]).start()
+        threading.Timer(32, self.changeFadeImage, [None]).start()
+        threading.Timer(40, self.startScriptedObject, ['QuitToMenu']).start()
+
+
+class HistoryTeacher(Npc):
+    def __init__(self, pos, levelClass):
+        super().__init__('HistoryTeacher', pos, levelClass)
+        self.callback = None
+        self.facingRight = False
+        self.timeCond = 'past'
+        self.animationSpeed = 0.025
+        self.speed = 0
+
+    def storytelling(self, callback = None):
+        self.callback = callback
+        self.surprising()
+
+    def surprising(self):
+        self.createBalloonMessage([
+            'Даже и не верится, у Алексея и правда интересная форма!'
+        ], self.pos, voice = 'man', callback = self.ourMethods)
+
+    def ourMethods(self):
+        self.status = 'pointingRight'
+        self.createBalloonMessage([
+            'Но наши методы и так довольно хороши, они передаются из поколения в поколение!'
+        ], self.pos, voice = 'man', callback = self.asking)
+
+    def asking(self):
+        self.status = 'idle'
+        self.createBalloonMessage(['Зачем что-то менять?'], self.pos, voice = 'man', callback = self.callback)
+
+
+class FranceTeacher(Npc):
+    def __init__(self, pos, levelClass):
+        super().__init__('FranceTeacher', pos, levelClass)
+        self.facingRight = False
+        self.timeCond = 'past'
+        self.animationSpeed = 0.025
+        self.speed = 0
+
+    def storytelling(self):
+        self.soundsGreat()
+
+    def soundsGreat(self):
+        self.createBalloonMessage(['Звучит отлично! Давайте же начнём нашу programme по обмену опыта!'], self.pos, voice = 'woman', callback = self.triggerProfessor)
+
+    def triggerProfessor(self):
+        self.triggerNpc('Marcus', 'portableTimeTravellingDevice')
+
+
+class MathsTeacher(Npc):
+    def __init__(self, pos, levelClass):
+        super().__init__('MathsTeacher', pos, levelClass)
+        self.facingRight = False
+        self.timeCond = 'past'
+        self.animationSpeed = 0.05
+        self.speed = 0

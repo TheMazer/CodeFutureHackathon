@@ -20,6 +20,7 @@ level_1 = {
         'playerFacingRight': False,
         'musicVolume': 0.2,
         'finishTime': 'past',
+        'useCameraConstraints': False,
         'musicSwitching': False
     },
 
@@ -84,7 +85,57 @@ level_2 = {
     'LevelMusic': 'assets/sounds/music/Arcade Machine.mp3'
 }
 
-level_3 = {}
+level_3 = {
+    'Parameters': {
+        'musicVolume': 0.2,
+        'startTime': 'past',
+        'focusOnPlayerFirst': True,
+        'snow': 'future'
+    },
+
+    'VerticalTriggers': [
+        'MarcusInit',
+        'MarcusQuestComplete'
+    ],
+
+    'ScriptedObjects': 'levels/3/level3_ScriptedObjects.csv',
+    'Fades': 'levels/3/level3_Fades.csv',
+    'FutureFades': 'levels/3/level3_FutureFades.csv',
+    'PastFades': 'levels/3/level3_PastFades.csv',
+    'ParticleSources': 'levels/3/level3_ParticleSources.csv',
+    'PastParticleSources': 'levels/3/level3_PastParticleSources.csv',
+    'AnimatedObjects': 'levels/3/level3_AnimatedObjects.csv',
+    'PastAnimatedObjects': 'levels/3/level3_PastAnimatedObjects.csv',
+    'FutureObjects': 'levels/3/level3_FutureObjects.csv',
+    'PastObjects': 'levels/3/level3_PastObjects.csv',
+    'Decoration': 'levels/3/level3_Decoration.csv',
+    'Player': 'levels/3/level3_Player.csv',
+    'Npcs': 'levels/3/level3_Npcs.csv',
+    'Enemies': 'levels/3/level3_Enemies.csv',
+    'FutureBg': 'levels/3/level3_FutureBg.csv',
+    'PastBg': 'levels/3/level3_PastBg.csv',
+    'bgDecoration': 'levels/3/level3_bgDecoration.csv',
+    'FuturePlatforms': 'levels/3/level3_FuturePlatforms.csv',
+    'PastPlatforms': 'levels/3/level3_PastPlatforms.csv',
+    'FutureHelicopters': 'levels/3/level3_FutureHelicopters.csv',
+    'PastHelicopters': 'levels/3/level3_PastHelicopters.csv',
+    'FutureSaws': 'levels/3/level3_FutureSaws.csv',
+    'PastSaws': 'levels/3/level3_PastSaws.csv',
+    'Ground': 'levels/3/level3_Ground.csv',
+    'FutureGround': 'levels/3/level3_FutureGround.csv',
+    'PastGround': 'levels/3/level3_PastGround.csv',
+    'Background': 'levels/3/level3_Background.csv',
+    'UnderBgDecoration': 'levels/3/level3_UnderBgDecoration.csv',
+
+    'pastGroundTileset': 'assets/images/tilesets/corpsTiles.png',
+    'futureGroundTileset': 'assets/images/tilesets/corpsNeoTiles.png',
+
+    'FutureBackgroundImage': 'assets/images/background/levels/3/future.png',
+    'CustomCloudsFolder': 'assets/images/background/cloudFades',
+
+    'LevelMusic': 'assets/sounds/music/Cunning Fox.mp3',
+    'FutureMusic': 'assets/sounds/music/Pulse of Time.mp3'
+}
 
 # Defining Next Levels
 level_1['nextLevel'] = level_2

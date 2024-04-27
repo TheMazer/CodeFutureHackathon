@@ -31,6 +31,13 @@ class StaticObject(StaticTile):
         self.image = self.image.subsurface(start, 0, width, self.image.get_height())
 
 
+class Platform(StaticTile):
+    def __init__(self, x, y, surface):
+        super().__init__(x, y, surface)
+        self.rect = self.image.get_bounding_rect()
+        self.rect.topleft = (x, y)
+
+
 class AnimatedTile(Tile):
     def __init__(self, x, y, path):
         super().__init__(x, y)
@@ -49,6 +56,84 @@ class AnimatedTile(Tile):
         self.animate()
 
 
+class Helicopter(AnimatedTile):
+    def __init__(self, x, y, direction, distance, speed = 2, reverse = False):
+        super().__init__(x, y, 'helicopter')
+        self.startPos = (x, y)
+        self.endPos = (x + distance, y + distance)
+        self.direction = pygame.Vector2(1, 0) if direction == 'horizontal' else pygame.Vector2(0, 1)
+        self.directionType = direction
+        self.speed = speed
+        if reverse:  # Reverse Start Position
+            if self.directionType == 'horizontal':
+                self.rect.right = self.endPos[0]
+                self.reverseDirection()
+            else:  # Vertical
+                self.rect.bottom = self.endPos[1]
+                self.reverseDirection()
+
+    def reverseDirection(self):
+        self.direction *= -1
+
+    def update(self):
+        self.animate()
+        self.rect.topleft += self.direction * self.speed
+        if self.directionType == 'horizontal':
+            if self.rect.right > self.endPos[0] and self.direction.x == 1:
+                self.rect.right = self.endPos[0]
+                self.reverseDirection()
+            elif self.rect.left < self.startPos[0] and self.direction.x == -1:
+                self.rect.left = self.startPos[0]
+                self.reverseDirection()
+        else:
+            if self.rect.bottom > self.endPos[1] and self.direction.y == 1:
+                self.rect.bottom = self.endPos[1]
+                self.reverseDirection()
+            elif self.rect.top < self.startPos[1] and self.direction.y == -1:
+                self.rect.top = self.startPos[1]
+                self.reverseDirection()
+
+
+class Saw(AnimatedTile):
+    def __init__(self, x, y, direction, distance, speed = 3, reverse = False):
+        super().__init__(x, y, 'saw')
+        self.animationSpeed = 0.5
+        self.frames.reverse()
+        self.startPos = (x, y)
+        self.endPos = (x + distance, y + distance)
+        self.direction = pygame.Vector2(1, 0) if direction == 'horizontal' else pygame.Vector2(0, 1)
+        self.directionType = direction
+        self.speed = speed
+        if reverse:  # Reverse Start Position
+            if self.directionType == 'horizontal':
+                self.rect.right = self.endPos[0]
+                self.reverseDirection()
+            else:  # Vertical
+                self.rect.bottom = self.endPos[1]
+                self.reverseDirection()
+
+    def reverseDirection(self):
+        self.direction *= -1
+
+    def update(self):
+        self.animate()
+        self.rect.topleft += self.direction * self.speed
+        if self.directionType == 'horizontal':
+            if self.rect.right > self.endPos[0] and self.direction.x == 1:
+                self.rect.right = self.endPos[0]
+                self.reverseDirection()
+            elif self.rect.left < self.startPos[0] and self.direction.x == -1:
+                self.rect.left = self.startPos[0]
+                self.reverseDirection()
+        else:
+            if self.rect.bottom > self.endPos[1] and self.direction.y == 1:
+                self.rect.bottom = self.endPos[1]
+                self.reverseDirection()
+            elif self.rect.top < self.startPos[1] and self.direction.y == -1:
+                self.rect.top = self.startPos[1]
+                self.reverseDirection()
+
+
 # Clouds Preloading
 cloudImages = []
 for i in range(1, 5):
@@ -56,8 +141,9 @@ for i in range(1, 5):
 
 
 class Cloud(StaticTile):
-    def __init__(self, x, y, resetX, movingSpeed = 10):
-        super().__init__(x, y, random.choice(cloudImages).convert_alpha())
+    def __init__(self, x, y, resetX, movingSpeed = 10, cloudSurfaces = None):
+        if not cloudSurfaces: cloudSurfaces = cloudImages
+        super().__init__(x, y, random.choice(cloudSurfaces).convert_alpha())
         self.rect = self.image.get_rect(topleft=(x, y))
         self.resetX = resetX
         self.movingSpeed = movingSpeed
@@ -118,6 +204,43 @@ class FenceGateController(StaticObject):
         if type is not None: self.highlighted = type
         else: self.highlighted = not self.highlighted
         self.image = self.outlines[0] if not self.highlighted else self.outlines[1]
+
+
+class VerticalTrigger(Tile):
+    def __init__(self, x, height, id):
+        super().__init__(x, height, False)
+        self.isBackground = True
+        self.val = 'VerticalTrigger'
+        self.id = id
+        self.rect.y = 0
+        self.rect.height = height
+        # self.image = pygame.Surface((64, height))
+        # self.image.fill('Red')
+
+
+class MidDoor(AnimatedTile):
+    def __init__(self, x, y):
+        super().__init__(x, y, 'midDoor')
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.outlines = importFolder('assets/images/tilesets/animatedObjects/midDoorOutline')
+        self.outline = self.outlines[0]
+        self.highlighted = 0
+        self.isBackground = True
+        self.inPast = False
+        self.stage = 0
+        self.val = 'MidDoor'
+
+    def changeOutline(self, type = None):
+        if type is not None: self.highlighted = type
+        else: self.highlighted = not self.highlighted
+        self.outline = self.outlines[0] if not self.highlighted else self.outlines[1]
+
+    def animate(self):
+        self.frameIndex += self.animationSpeed
+        if self.frameIndex >= len(self.frames):
+            self.frameIndex = 0
+        self.image = self.frames[int(self.frameIndex)]
+        self.image.blit(self.outline, (0, 0))
 
 
 class Alarm(AnimatedTile):
