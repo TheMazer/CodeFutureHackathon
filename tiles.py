@@ -83,6 +83,20 @@ class EnergyExplosion(AnimatedTile):
             self.image = self.frames[int(self.frameIndex)]
 
 
+class FenceGateController(StaticObject):
+    def __init__(self, x, y):
+        super().__init__(x, y, '../animatedObjects/fenceGateOutline/black')
+        self.outlines = importFolder('assets/images/tilesets/animatedObjects/fenceGateOutline')
+        self.highlighted = 0
+        self.isBackground = True
+        self.val = 'FenceGate'
+
+    def changeOutline(self, type = None):
+        if type is not None: self.highlighted = type
+        else: self.highlighted = not self.highlighted
+        self.image = self.outlines[0] if not self.highlighted else self.outlines[1]
+
+
 class Alarm(AnimatedTile):
     def __init__(self, x, y, path):
         super().__init__(x, y, path)

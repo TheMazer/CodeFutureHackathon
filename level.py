@@ -1,12 +1,12 @@
 from settings import *
 
 import threading
-from tiles import StaticTile, StaticObject, EnergyExplosion, Alarm
+from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, Alarm
 from particles import ParticleSource
 from player import Player
 from npc import Marcus
 from functions import importCutGraphics, importCsvLayout
-from interactive import BalloonMessage
+from interactive import BalloonMessage, Hint
 from camera import CameraGroup
 
 
@@ -43,12 +43,13 @@ class Level:
         self.levelMusic = pygame.mixer.Sound(self.levelData['LevelMusic'])
         self.levelMusic.set_volume(self.levelParameters.get('musicVolume', 1) * int(self.config.get('musicVolume', 'Settings')) / 100)
 
-        # Balloon Messages Processing
+        # Balloon Messages & Hints Processing
         self.balloonMessages = []
+        self.hints = []
 
         # Time Travelling
         self.inPast = True if self.levelParameters.get('startTime', 'future') == 'past' else False
-        self.hasTimeMachine = True  # Todo: Replace with this: self.levelParameters.get('hasTimeMachine', 0)
+        self.hasTimeMachine = self.levelParameters.get('hasTimeMachine', False)
         self.lastPlayerPositions = {'past': (0.0, 0.0), 'future': (0.0, 0.0), 'init': (0, 0)}
 
         # Time-based Tilesets
@@ -150,6 +151,8 @@ class Level:
                     elif sType == 'ScriptedObjects':
                         if val == '0':  # Energy Explosion
                             sprite = EnergyExplosion(x, y)
+                        elif val == '1':
+                            sprite = FenceGateController(x, y)
                     elif sType == 'AnimatedObjects':
                         if val == '0':  # Alarm
                             sprite = Alarm(x, y, val)
@@ -433,6 +436,24 @@ class Level:
                     sprite.drawable = False  # Defining Goal Visibility
                     self.goal.add(sprite)
 
+    def checkBgScriptedObjectsCollision(self):
+        for obj in self.bgScriptedObjectsSprites:
+            if isinstance(obj, FenceGateController):
+                if pygame.sprite.collide_rect(self.player.sprite, obj):
+                    obj.changeOutline(1)
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_e]:
+                        self.forceFinish = True
+                    if not any(hint.parent == obj for hint in self.hints):
+                        hint = Hint(obj.rect.midtop, obj, 'Войти', 'e')
+                        hint.printingSound.set_volume(int(self.config.get('interfaceVolume', 'Settings')) / 100 * 0.5)
+                        self.hints.append(hint)
+                else:
+                    obj.changeOutline(0)
+                    for hint in self.hints:
+                        if hint.parent == obj:
+                            self.hints.remove(hint)
+
     def checkFinish(self):
         if self.finishProgress > 0:
             self.finishProgress += 1
@@ -485,6 +506,7 @@ class Level:
         self.cameraGroup.render()
 
         # Checking Collisions
+        self.checkBgScriptedObjectsCollision()
         self.checkFinish()
 
         # Screen Effects Processing
