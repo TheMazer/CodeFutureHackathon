@@ -95,6 +95,18 @@ class Level:
 
     # Game Management Functions
     def startScriptedObject(self, event, destroy = False):
+        if event == 'QuitToMenu':
+            for thread in threading.enumerate():
+                if isinstance(thread, threading.Timer):
+                    thread.cancel()
+            pygame.mouse.set_visible(True)
+            self.levelMusic.stop()
+            self.config.set('level', '0', 'Progress')
+            self.config.set('objectives', '', 'Progress')
+            self.config.save()
+            self.createMenu()
+            return
+
         for sprite in self.scriptedObjectsSprites:
             if isinstance(sprite, EnergyExplosion) and event == 'EnergyExplosion':
                 def destruct():

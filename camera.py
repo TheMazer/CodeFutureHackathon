@@ -94,7 +94,7 @@ class CameraGroup(pygame.sprite.Group):
                 cloud.move()  # Move Cloud
                 cloudRect = cloud.rect.copy()
                 cloudRect.topleft -= self.offset / 10
-                if cloudRect.colliderect(cameraViewRect):  # Draw only those Clouds thar are in Camera View
+                if cloudRect.colliderect(cameraViewRect):  # Draw only those Clouds that are in Camera View
                     self.backgroundSurface.blit(cloud.image, (cloud.rect.x, cloud.rect.y) - self.offset / 10)
                 if cloudRect.left >= cloud.resetX:  # If Cloud reached end of level
                     cloud.rect.right = 0

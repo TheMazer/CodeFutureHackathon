@@ -27,8 +27,8 @@ class Game:
         self.menu = Menu(self.createLevel, self.config, self.switchFPS)
         self.currentStage = self.menu
 
-    def createLevel(self, currentLevel):
-        self.level = Level(currentLevel, self.createMenu, self.createLevel, self.config)
+    def createLevel(self, currentLevel, objectives = None):
+        self.level = Level(currentLevel, self.createMenu, self.createLevel, self.config, objectives)
         self.currentStage = self.level
 
     def switchFPS(self, mode: bool = None):
