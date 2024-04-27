@@ -11,7 +11,7 @@ from camera import CameraGroup
 
 
 class Level:
-    def __init__(self, levelData, createMenu, createLevel, config):
+    def __init__(self, levelData, createMenu, createLevel, config, objectives: list = None):
         self.displaySurface = pygame.display.get_surface()
         self.createMenu = createMenu
         self.createLevel = createLevel
@@ -48,11 +48,24 @@ class Level:
         self.balloonMessages = []
         self.hints = []
         self.objectives = []
+        # Load Previous Level and Progress Saved Objectives
+        if objectives is None:
+            if titles := self.config.get('objectives', 'Progress'):
+                titles = titles.split(' | ')
+                for title in titles:
+                    self.addObjective(title, False)
+        else:
+            self.objectives = objectives
+
+        # Vertical Triggers
+        self.triggerId = 0
+        self.triggerActions = self.levelData.get('VerticalTriggers')
 
         # Time Travelling
         self.inPast = True if self.levelParameters.get('startTime', 'future') == 'past' else False
         self.hasTimeMachine = self.levelParameters.get('hasTimeMachine', False)
         self.lastPlayerPositions = {'past': (0.0, 0.0), 'future': (0.0, 0.0), 'init': (0, 0)}
+        self.playerInventory = []
 
         # Time-based Tilesets
         self.pastGroundTileList = importCutGraphics(self.levelData['pastGroundTileset'])
@@ -63,9 +76,15 @@ class Level:
         self.futureBgImage = pygame.image.load(self.levelData['FutureBackgroundImage']).convert() if 'FutureBackgroundImage' in self.levelData else None
         self.pastBgImage = pygame.image.load(self.levelData['PastBackgroundImage']).convert() if 'PastBackgroundImage' in self.levelData else None
         self.bgImage = self.pastBgImage if self.inPast else self.futureBgImage
+        self.customCloudsPath = importFolder(self.levelData.get('CustomCloudsFolder')) if self.levelData.get('CustomCloudsFolder') else None
 
         # Level Setup
+        self.reversedObjects = {'helicopters': 0, 'saws': 0}
         self.setupLevel()
+
+        # Focus Camera on Player if it says in Level Parameters
+        if self.levelParameters.get('focusOnPlayerFirst'):
+            self.cameraGroup.graduallyOffset = pygame.Vector2(self.player.sprite.hitbox.center) - pygame.Vector2(screenSize) / 2 - pygame.Vector2(0, 150)
 
         # Level Initial Objectives
         for text, delay in self.levelData.get('StartQuests', ()):
@@ -82,17 +101,28 @@ class Level:
                     if destroy: self.scriptedObjectsSprites.remove(sprite)
                 sprite.activate(int(self.config.get('effectsVolume', 'Settings')), destruct)
 
+    def triggerNpc(self, npcType, method = 'storytelling', args = None):
+        for sprite in self.npcSprites:
+            if sprite.npcType == npcType:
+                method = getattr(sprite, method)
+                if args is not None:
+                    method(*args)
+                else:
+                    method()
+
     def switchPlayerControllability(self, mode: bool = None):
         if mode is not None:
             self.player.sprite.controllability = mode
         else:
             self.player.sprite.controllability = not self.player.sprite.controllability
 
-    def switchTimeMachine(self, mode: bool = None):
+    def switchTimeMachine(self, mode: bool = None, particles=False):
         if mode is not None:
             self.hasTimeMachine = mode
         else:
             self.hasTimeMachine = not self.hasTimeMachine
+        if self.hasTimeMachine and particles:
+            self.createGuiParticles('5', x=screenSize[0] - 192, y=screenSize[1] - 152, lifetime=20)
 
     def setBackgroundMusic(self, path, volume=0.2, fade=2, loops=-1):
         if path != 'stop':
@@ -188,6 +218,44 @@ class Level:
                         fadesTileList = importCutGraphics('assets/images/tilesets/fadeTiles.png')
                         tileSurface = fadesTileList[int(val)]
                         sprite = StaticTile(x, y, tileSurface)
+                    elif sType == 'Platforms':
+                        platformsTileList = importCutGraphics('assets/images/tilesets/platforms.png')
+                        tileSurface = platformsTileList[int(val)]
+                        sprite = Platform(x, y, tileSurface)
+                    elif 'Helicopters' in sType or 'Saws' in sType:
+                        spriteData = {
+                            '0': ['horizontal', 192],
+                            '1': ['horizontal', 320],
+                            '2': ['horizontal', 512],
+                            '3': ['vertical', 192],
+                            '4': ['vertical', 320],
+                            '5': ['vertical', 512]
+                        }
+                        currentSpriteData = spriteData[val]
+                        if sType == 'Helicopters':
+                            sprite = Helicopter(x, y, currentSpriteData[0], currentSpriteData[1], reverse = self.reversedObjects['helicopters'] % 2)
+                            self.reversedObjects['helicopters'] += 1
+                        else:
+                            sprite = Saw(x, y, currentSpriteData[0], currentSpriteData[1], reverse = self.reversedObjects['saws'] % 2)
+                            self.reversedObjects['saws'] += 1
+                            if sprite.directionType == 'horizontal':
+                                y = sprite.startPos[1] - 20
+                                left, right = int(sprite.startPos[0]) + 36, int(sprite.endPos[0]) - 36
+                                for x in range(left, right, 16):
+                                    chainSprite = StaticObject(x, y, '188')
+                                    if 'Future' in sType:
+                                        self.futureBgSprites.add(chainSprite)
+                                    else:
+                                        self.pastBgSprites.add(chainSprite)
+                            else:  # Vertical
+                                x = sprite.startPos[0] + 36
+                                top, bottom = int(sprite.startPos[1]) - 20, int(sprite.endPos[1]) - 84
+                                for y in range(top, bottom, 16):
+                                    chainSprite = StaticObject(x, y, '188')
+                                    if 'Future' in sType:
+                                        self.futureBgSprites.add(chainSprite)
+                                    else:
+                                        self.pastBgSprites.add(chainSprite)
                     elif sType == 'Decoration':
                         sprite = StaticObject(x, y, val)
 
@@ -206,6 +274,13 @@ class Level:
                             sprite = EnergyExplosion(x, y)
                         elif val == '1':
                             sprite = FenceGateController(x, y)
+                        elif val == '2':
+                            sprite = VerticalTrigger(x, self.levelSize[1] * tileSize, self.triggerId)
+                            self.triggerId += 1
+                        elif val == '3':
+                            sprite = MidDoor(x, y)
+                            particleSource = ParticleSource(x + 96, y + 96, '6', self.displaySurface, self.cameraGroup)
+                            self.particleSourcesSprites.add(particleSource)
                     elif sType == 'AnimatedObjects':
                         if val == '0':  # Alarm
                             sprite = Alarm(x, y, val)
@@ -214,6 +289,14 @@ class Level:
                     elif sType == 'Npcs':
                         if val == '0':  # Marcus (Intro)
                             sprite = Marcus((x, y), self)
+                        elif val == '1':  # Marcus (At Corps)
+                            sprite = MarcusAtCorps((x, y), self)
+                        elif val == '2':  # History Teacher
+                            sprite = HistoryTeacher((x, y), self)
+                        elif val == '3':  # France Teacher
+                            sprite = FranceTeacher((x, y), self)
+                        elif val == '4':  # Maths Teacher
+                            sprite = MathsTeacher((x, y), self)
 
                     spriteGroup.add(sprite)
 
@@ -398,7 +481,15 @@ class Level:
             self.cameraGroup.add(self.fadesSprites)
         self.cameraGroup.add(timeCondScriptedObjects)
 
-        self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.decorationSprites.sprites()
+        # Defining Collideable Sprites
+        if self.inPast:
+            self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.pastGroundSprites.sprites() + \
+                                                    self.decorationSprites.sprites() + self.pastObjectsSprites.sprites()
+            self.player.sprite.onTopCollideableSprites = self.pastPlatforms.sprites() + self.pastHelicopters.sprites()
+        else:
+            self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.futureGroundSprites.sprites() + \
+                                                    self.decorationSprites.sprites() + self.futureObjectsSprites.sprites()
+            self.player.sprite.onTopCollideableSprites = self.futurePlatforms.sprites() + self.futureHelicopters.sprites()
 
     def timeTravel(self, to: str = None):
         for sprite in self.cameraGroup.sprites():
@@ -463,13 +554,25 @@ class Level:
             self.cameraGroup.add(self.pastParticleSpawnersSprites)
             self.cameraGroup.add(self.pastParticleSourcesSprites)
             self.cameraGroup.add(self.pastFadesSprites)
+            self.bgImage = self.pastBgImage
         else:
             self.cameraGroup.add(self.futureParticleSpawnersSprites)
             self.cameraGroup.add(self.particleSourcesSprites)
             self.cameraGroup.add(self.futureFadesSprites)
+            self.bgImage = self.futureBgImage
         if not self.disableFades:
             self.cameraGroup.add(self.fadesSprites)
         self.cameraGroup.add(timeCondScriptedObjects)
+
+        # Defining Collideable Sprites
+        if self.inPast:
+            self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.pastGroundSprites.sprites() + \
+                                                    self.decorationSprites.sprites() + self.pastObjectsSprites.sprites()
+            self.player.sprite.onTopCollideableSprites = self.pastPlatforms.sprites() + self.pastHelicopters.sprites()
+        else:
+            self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.futureGroundSprites.sprites() + \
+                                                    self.decorationSprites.sprites() + self.futureObjectsSprites.sprites()
+            self.player.sprite.onTopCollideableSprites = self.futurePlatforms.sprites() + self.futureHelicopters.sprites()
 
         # Resetting Player's Direction to prevent from noclipping
         self.player.sprite.direction = pygame.Vector2()
@@ -523,6 +626,62 @@ class Level:
                     for hint in self.hints:
                         if hint.parent == obj:
                             self.hints.remove(hint)
+            elif isinstance(obj, VerticalTrigger) and self.triggerActions:
+                if pygame.sprite.collide_rect(self.player.sprite, obj):
+                    if self.triggerActions[obj.id] == 'MarcusInit':
+                        for sprite in self.npcSprites:
+                            if isinstance(sprite, MarcusAtCorps):
+                                sprite.storytelling()
+                                # noinspection PyTypeChecker
+                                self.bgScriptedObjectsSprites.remove(obj)
+                    elif self.triggerActions[obj.id] == 'MarcusQuestComplete' and self.inPast:
+                        if 'Notebook' in self.playerInventory:
+                            for sprite in self.npcSprites:
+                                if isinstance(sprite, MarcusAtCorps):
+                                    sprite.questComplete()
+                                    self.player.sprite.facingRight = True
+                                    self.playerInventory.remove('Notebook')
+                                    # noinspection PyTypeChecker
+                                    self.bgScriptedObjectsSprites.remove(obj)
+            elif isinstance(obj, MidDoor):
+                if pygame.sprite.collide_rect(self.player.sprite, obj) and obj.inPast == self.inPast and not obj.stage:
+                    obj.changeOutline(1)
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_e]:
+                        self.screenFadeEffect(2, 3, 2)
+                        self.playerControllability = False
+                        self.playerInventory.append('Notebook')
+                        threading.Timer(6, self.createFoundItemAnimation, ['Notebook', 'Тетрадь профессора']).start()
+                        threading.Timer(6, self.completeObjective, ['Найти Тетрадь профессора']).start()
+                        threading.Timer(8, self.switchPlayerControllability, [True]).start()
+                        obj.stage = 1
+                    if not any(hint.parent == obj for hint in self.hints):
+                        hint = Hint(obj.rect.midtop, obj, 'Войти', 'e')
+                        hint.printingSound.set_volume(int(self.config.get('interfaceVolume', 'Settings')) / 100 * 0.5)
+                        self.hints.append(hint)
+                else:
+                    obj.changeOutline(0)
+                    for hint in self.hints:
+                        if hint.parent == obj:
+                            self.hints.remove(hint)
+
+    def constraintsCheck(self):
+        playerCollisionRect = self.player.sprite.collisionRect
+        if playerCollisionRect.left <= 0:
+            playerCollisionRect.left = 0
+        elif playerCollisionRect.right >= self.levelSize[0] * tileSize:
+            playerCollisionRect.right = self.levelSize[0] * tileSize
+
+        if playerCollisionRect.bottom >= self.levelSize[1] * tileSize:
+            self.death = True
+
+    def damageObjectsCollisionCheck(self):
+        if self.inPast: damageObjects = self.pastSaws
+        else: damageObjects = self.futureSaws
+
+        for obj in damageObjects:
+            if obj.rect.colliderect(self.player.sprite.hitbox):
+                self.player.sprite.applyDamage()
 
     def checkFinish(self):
         if self.finishProgress > 0:
@@ -536,8 +695,14 @@ class Level:
                         thread.cancel()
                 pygame.mouse.set_visible(True)
                 if not self.death:
-                    self.createLevel(self.levelData['nextLevel'])
+                    # Saving Current Progress to Config
+                    nextLevelId = int(self.config.get('level', 'Progress')) + 1
+                    self.config.set('level', str(nextLevelId), 'Progress')
+                    self.config.set('objectives', ' | '.join([objective.text for objective in self.objectives]), 'Progress')
+                    self.config.save()
+                    self.createLevel(self.levelData['nextLevel'], self.objectives)
                 else:
+                    # Moving Player to Last coordinates
                     if self.inPast and self.lastPlayerPositions['past'] != (0, 0):
                         pos = self.lastPlayerPositions['past']
                     elif not self.inPast and self.lastPlayerPositions['future'] != (0, 0):
@@ -577,6 +742,7 @@ class Level:
 
         # Checking Collisions
         self.checkBgScriptedObjectsCollision()
+        self.damageObjectsCollisionCheck()
         self.checkFinish()
 
         # Screen Effects Processing

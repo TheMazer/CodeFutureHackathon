@@ -1,6 +1,7 @@
 from settings import *
 
 from functions import importFolder
+from tiles import Helicopter
 
 
 class Player(pygame.sprite.Sprite):
@@ -21,6 +22,7 @@ class Player(pygame.sprite.Sprite):
 
         # Player movement
         self.collideableSprites = None
+        self.onTopCollideableSprites = None
         self.direction = pygame.Vector2(0, 0)
         self.playerSpeed = 8
         self.playerGravity = 0.8
@@ -34,6 +36,8 @@ class Player(pygame.sprite.Sprite):
         self.status = 'idle'
         self.controllability = True
         self.facingRight = facingRight
+        self.passPlatforms = -1
+        self.invulnerability = 0
         self.onGround = False
 
     def importCharacterAssets(self):
@@ -95,10 +99,25 @@ class Player(pygame.sprite.Sprite):
                 elif self.direction.y < 0:
                     self.hitbox.top = sprite.rect.bottom
                     self.direction.y = 0
-                    self.onCeiling = True
 
         if self.onGround and self.direction.y < 0 or self.direction.y > self.playerGravity:
             self.onGround = False
+
+    def onTopMovementCollision(self):
+        for sprite in self.onTopCollideableSprites:
+            if sprite.rect.colliderect(self.hitbox):
+                if self.direction.y > 0 and sprite.rect.top >= self.oldRect.bottom:
+                    if self.passPlatforms < 1:
+                        self.hitbox.bottom = sprite.rect.top
+                        self.direction.y = 0
+                        self.onGround = True
+            if isinstance(sprite, Helicopter) and self.passPlatforms < 1:
+                bottomRect = pygame.Rect(self.hitbox.bottomleft, (self.hitbox.width, 2))
+                if sprite.rect.colliderect(bottomRect) and self.hitbox.bottom >= sprite.rect.top >= self.oldRect.bottom - sprite.speed:
+                    self.hitbox.bottom = sprite.rect.top
+                    self.hitbox.topleft += sprite.direction * sprite.speed
+                    if sprite.directionType == 'vertical' and (sprite.endPos[1] - sprite.rect.bottom < 16 or sprite.rect.top - sprite.startPos[1] < 16):
+                        self.playerOnGround = True
 
     def applyGravity(self):
         self.direction.y += self.playerGravity
@@ -107,6 +126,17 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
         self.direction.y = self.playerJumpSpeed
         self.jumpSound.play()
+
+    def applyDamage(self):
+        if self.invulnerability <= 0:
+            self.invulnerability = 20  # Invulnerability for some time
+            self.passPlatforms = 1  # Balance loss on Saw Impact
+            self.damageTakenSound.play()
+
+    def hitAnimation(self):
+        if self.invulnerability > 0:
+            self.transparency = self.invulnerability * 4
+            self.invulnerability -= 1
 
     def getInput(self):
         if self.controllability:
@@ -123,6 +153,15 @@ class Player(pygame.sprite.Sprite):
             if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and self.onGround:
                 self.jump()
 
+            if keys[pygame.K_s] and self.passPlatforms == -1:
+                self.passPlatforms = 16  # Interval when Player will pass through platforms
+            elif keys[pygame.K_s] and self.passPlatforms > 0:
+                self.passPlatforms -= 1
+            elif not keys[pygame.K_s] and self.invulnerability < 10:  # Balance loss on Saw Impact
+                self.passPlatforms = -1
+        else:
+            self.direction.x = 0
+
     def getStatus(self):
         if self.direction.y < 0:
             self.status = 'jump'
@@ -138,5 +177,8 @@ class Player(pygame.sprite.Sprite):
         self.getInput()
         self.getStatus()
         self.animate()
+        self.hitAnimation()
+        self.oldRect = self.hitbox.copy()
         self.horizontalMovementCollision()
         self.verticalMovementCollision()
+        self.onTopMovementCollision()

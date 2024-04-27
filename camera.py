@@ -15,6 +15,15 @@ class CameraGroup(pygame.sprite.Group):
         self.graduallyOffset = pygame.Vector2(0, 0)
         self.offset = pygame.Vector2(0, 0)
 
+        # Camera Borders
+        self.useCameraConstraints = levelClass.levelParameters.get('useCameraConstraints', True)
+        self.cameraBorders = {
+            'left': 0,
+            'right': levelClass.levelSize[0] * tileSize - screenSize[0],
+            'bottom': levelClass.levelSize[1] * tileSize - screenSize[1],
+            'top': 0
+        }
+
         # Effects Setup
         self.flashingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.fadingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
@@ -27,12 +36,15 @@ class CameraGroup(pygame.sprite.Group):
 
         # Clouds
         self.clouds = []; levelSize = self.levelClass.levelSize
-        for i in range(round((levelSize[0] * tileSize / screenSize[0]) * (levelSize[1] * tileSize / screenSize[1]) * 4)):
+        customClouds = levelClass.customCloudsPath if levelClass.customCloudsPath else None
+        for i in range(
+                round((levelSize[0] * tileSize / screenSize[0]) * (levelSize[1] * tileSize / screenSize[1]) * 4)):
             self.clouds.append(Cloud(
                 x=random.randint(0, levelSize[0] * tileSize),
                 y=random.randint(0, levelSize[1] * tileSize),
                 resetX=levelSize[0] * tileSize,
-                movingSpeed=random.randint(1, 3)
+                movingSpeed=random.randint(1, 3),
+                cloudSurfaces=customClouds
             ))
 
         # Time Travel Button & Gui
@@ -50,6 +62,13 @@ class CameraGroup(pygame.sprite.Group):
         target_offset = pygame.Vector2(player.hitbox.center) - pygame.Vector2(screenSize) / 2 - pygame.Vector2(0, 150)
         self.graduallyOffset += round((target_offset - self.graduallyOffset) * 0.05)
         self.offset = self.graduallyOffset
+
+        # Constraint Camera to level Size
+        if self.useCameraConstraints:
+            self.offset.x = self.offset.x if self.offset.x > self.cameraBorders['left'] else self.cameraBorders['left']
+            self.offset.x = self.offset.x if self.offset.x < self.cameraBorders['right'] else self.cameraBorders['right']
+            self.offset.y = self.offset.y if self.offset.y < self.cameraBorders['bottom'] else self.cameraBorders['bottom']
+            self.offset.y = self.offset.y if self.offset.y > self.cameraBorders['top'] else self.cameraBorders['top']
 
         # Applying Screenshake
         screenshake = round(self.levelClass.screenshake)
