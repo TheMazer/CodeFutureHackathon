@@ -6,7 +6,7 @@ from particles import ParticleSource, ParticleSpawner
 from player import Player
 from npc import Marcus, MarcusAtCorps, HistoryTeacher, FranceTeacher, MathsTeacher
 from functions import importFolder, importCutGraphics, importCsvLayout, getLevelSize
-from interactive import BalloonMessage, Hint, Objective, FoundItemAnimation
+from interactive import BalloonMessage, PhoneCall, Hint, Objective, FoundItemAnimation
 from camera import CameraGroup
 
 
@@ -46,6 +46,7 @@ class Level:
 
         # Balloon Messages & Hints & Objectives Processing
         self.balloonMessages = []
+        self.phoneCalls = []
         self.hints = []
         self.objectives = []
         # Load Previous Level and Progress Saved Objectives
@@ -174,6 +175,15 @@ class Level:
         message = BalloonMessage(messages, pos, speed, color, voice, self.switchPlayerControllability, callback)
         message.speechSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100)  # Beeps Volume
         self.balloonMessages.append(message)
+
+    def createPhoneCall(self, messages: list, speed = 3, color = 'White', voice = 'beep', name = 'Неизвестный', callback = None):
+        call = PhoneCall(messages, speed, color, voice, name, self.switchTimeMachine, callback)
+        call.callingRingtone.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100 / 2)  # Ringtone Volume
+        call.acceptSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100 / 2)  # Accept Volume
+        call.declineSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100 / 2)  # Decline Volume
+        call.speechSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100)  # Beeps Volume
+        call.callingRingtone.play(loops=-1)
+        self.phoneCalls.append(call)
 
     def addObjective(self, text, animation = True):
         objective = Objective(text)
@@ -597,6 +607,24 @@ class Level:
         elif self.levelParameters.get('musicSwitching', True):
             self.setBackgroundMusic(self.levelData.get('LevelMusic'), fade=1)
 
+        # Snow Particles
+        for particleSpawner in self.cameraGroup.guiParticles:
+            if isinstance(particleSpawner, ParticleSpawner):
+                self.cameraGroup.guiParticles.remove(particleSpawner)
+        addSnow = self.levelParameters.get('snow')
+        if (addSnow == 'all') or (addSnow == 'past' and self.inPast) or (addSnow == 'future' and not self.inPast):
+            self.createGuiParticles('snow', 'spawner', 0, 0)
+
+        # Inform Marcus about Player used PTTD
+        for npc in self.npcSprites:
+            if isinstance(npc, MarcusAtCorps) and npc.readyToCall and not self.inPast:
+                npc.phoneCall()
+
+        # PTTD Use Particles
+        if self.hasTimeMachine:
+            self.createGuiParticles('5', x = screenSize[0] - 192, y = screenSize[1] - 152, lifetime = 20)
+
+        # Screen Shake & Flash Effect
         self.screenshake = 30
         self.flashing = 100
 

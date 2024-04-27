@@ -135,7 +135,7 @@ class ParticleSpawner(Tile):
 
         self.particles = []
 
-    def animate(self):
+    def animate(self, customOffset):
         if self.particleType == 'leaf' or self.particleType == 'fadeLeaf':
             if random.randint(1, 5) > 4:
                 self.particles.append([
@@ -155,7 +155,7 @@ class ParticleSpawner(Tile):
                     self.frames[0]                             # Image
                 ])
 
-        camOffset = self.cameraClass.offset
+        camOffset = self.cameraClass.offset if customOffset is None else customOffset
         for particle in self.particles:
             # Moving Particles
             particle[0][0] += particle[1][0]
@@ -172,5 +172,5 @@ class ParticleSpawner(Tile):
 
             self.surface.blit(particle[3], (int(particle[0][0]) - camOffset.x + tileSize / 2, int(particle[0][1]) - camOffset.y + tileSize / 2))
 
-    def update(self):
-        self.animate()
+    def update(self, customOffset = None):
+        self.animate(customOffset)

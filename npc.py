@@ -35,6 +35,7 @@ class Npc(pygame.sprite.Sprite):
         self.changeFadeImage = levelClass.changeFadeImage
         self.startScriptedObject = levelClass.startScriptedObject
         self.triggerNpc = levelClass.triggerNpc
+        self.createPhoneCall = levelClass.createPhoneCall
         self.addObjective = levelClass.addObjective
         self.completeObjective = levelClass.completeObjective
         self.createBalloonMessage = levelClass.createBalloonMessage

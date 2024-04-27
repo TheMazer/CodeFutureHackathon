@@ -166,6 +166,13 @@ class CameraGroup(pygame.sprite.Group):
         for particleSource in self.guiParticles:
             particleSource.update(pygame.Vector2(0, 0))
 
+        # Processing Phone Calls
+        phoneCalls = self.levelClass.phoneCalls
+        if phoneCalls:
+            phoneCall = phoneCalls[0]  # First Phone Call
+            if phoneCall.done: phoneCalls.remove(phoneCalls[0])
+            else: phoneCall.draw(self.displaySurface)
+
         # Found Item Animations Processing
         for foundItemAnimation in self.foundItemAnimations:
             foundItemAnimation.draw(self.displaySurface)

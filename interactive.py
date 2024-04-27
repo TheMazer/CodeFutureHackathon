@@ -310,6 +310,126 @@ class BalloonMessage:
                         self.callback()
 
 
+class PhoneCall:
+    def __init__(self, messages: list, speed = 3, color = 'White', voice = 'beep', name = 'Неизвестный', switchTimeMachine = None, callback = None):
+        self.messages = messages
+        self.messagePosition = 0
+        self.currentMessage = 0
+        self.name = name
+        self.printingSpeed = speed
+        self.color = color
+        self.inPastCond = False
+
+        for s in range(len(messages)):
+            messages[s] = messages[i][:177] + '...' if len(messages[s]) > 180 else messages[s]
+
+        self.speechSound = pygame.mixer.Sound('assets/sounds/speech/' + voice + '.mp3')
+        self.callingBackground = pygame.image.load('assets/images/gui/marcusCalling.png')
+        self.callingPhone = pygame.image.load('assets/images/gui/callingPhone.png')
+        self.callingRingtone = pygame.mixer.Sound('assets/sounds/effects/PhoneCall.wav')
+        self.acceptSound = pygame.mixer.Sound('assets/sounds/effects/PhoneAccept.wav')
+        self.declineSound = pygame.mixer.Sound('assets/sounds/effects/PhoneDecline.wav')
+
+        self.done = False
+        self.waitingAnswer = True
+        self.frame = 0
+        self.lastMessage = ''
+        self.snips = []
+
+        pygame.mouse.set_visible(False)
+        self.switchTimeMachine = switchTimeMachine
+        if self.switchTimeMachine is not None:
+            self.switchTimeMachine(False)
+
+        self.callback = callback
+
+    def draw(self, surface):
+        if self.waitingAnswer:
+            pos = (screenSize[0] / 2 - self.callingBackground.get_width() / 2, screenSize[1] - self.callingBackground.get_height() - 128)
+            surface.blit(self.callingBackground, pos)
+            nameSnip = bigFont.render(self.name, False, 'White')
+            tipSnip = dialogueFont.render('Входящий вызов', False, '#cccccc')
+            answerTipSnip = mainFont.render('[E] — Ответить', False, '#aaffaa')
+            declineTipSnip = mainFont.render('[Y] — Сбросить', False, '#ff6666')
+
+            # Phone Rotation Animation
+            if self.frame % 60 < 30: angle = 5 - self.frame % 60 / 3
+            else: angle = -5 + (self.frame % 60 - 30) / 3
+            rotatedPhone = pygame.transform.rotate(self.callingPhone, angle)
+
+            # Incoming Call text Blinking
+            if self.frame < 60: alpha = 100 + int(self.frame / 60 * 155)
+            else: alpha = 255 - int((self.frame - 60) / 60 * 155)
+            tipSnip.set_alpha(alpha)
+
+            surface.blit(nameSnip, pos + pygame.Vector2(256, 64))
+            surface.blit(tipSnip, pos + pygame.Vector2(256, 96))
+            surface.blit(answerTipSnip, pos + pygame.Vector2(256, 180))
+            surface.blit(declineTipSnip, pos + pygame.Vector2(256, 212))
+            surface.blit(rotatedPhone, pos - pygame.Vector2(156, 168) + self.callingBackground.get_size())
+
+            self.frame = 0 if self.frame >= 120 else self.frame + 1
+
+            # Checking if key has pressed, then answering or declining
+            for event in pygame.event.get():
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_e:
+                        self.acceptSound.play()
+                        self.callingRingtone.stop()
+                        self.callingPhone = pygame.image.load('assets/images/gui/activePhone.png')
+                        self.waitingAnswer = False
+                    elif event.key == pygame.K_y:
+                        self.declineSound.play()
+                        self.callingRingtone.stop()
+                        self.done = True
+                        pygame.mouse.set_visible(True)
+                        if self.switchTimeMachine is not None:
+                            self.switchTimeMachine(True)
+                        if self.callback is not None:
+                            self.callback()
+
+        else:
+            self.messagePosition += 1
+            slicedMessage = self.messages[self.currentMessage][0:self.messagePosition // self.printingSpeed]
+
+            lines = textwrap.wrap(slicedMessage, width=30)
+
+            if slicedMessage != self.lastMessage:
+                self.lastMessage = slicedMessage
+
+                # Playing Speech Sound
+                if slicedMessage and slicedMessage[-1] not in [' ', '.', ',', ';', '!', '?']:
+                    self.speechSound.play(maxtime=self.printingSpeed * fps)
+
+                self.snips = []
+                for line in lines:
+                    self.snips.append(bigFont.render(line.lstrip(), False, self.color))
+
+            pos = (screenSize[0] / 2 - self.callingBackground.get_width() / 2, screenSize[1] - self.callingBackground.get_height() - 128)
+            surface.blit(self.callingBackground, pos)
+            surface.blit(self.callingPhone, pos - pygame.Vector2(156, 168) + self.callingBackground.get_size())
+            for y, snip in enumerate(self.snips):
+                surface.blit(snip, pos + pygame.Vector2(256, 64) + (0, y * 24) + (0, y * 2))
+
+            # Checking if Mouse button has pressed, then printing next message
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONUP or (event.type == pygame.KEYUP and event.key == pygame.K_e):
+                    if self.messagePosition // self.printingSpeed < len(self.messages[self.currentMessage]):
+                        self.messagePosition = len(self.messages[self.currentMessage]) * self.printingSpeed
+                    elif self.currentMessage < len(self.messages) - 1:
+                        self.messagePosition = 0
+                        self.currentMessage += 1
+                    else:
+                        self.done = True
+                        self.declineSound.set_volume(self.declineSound.get_volume() * 0.5)
+                        self.declineSound.play()
+                        pygame.mouse.set_visible(True)
+                        if self.switchTimeMachine is not None:
+                            self.switchTimeMachine(True)
+                        if self.callback is not None:
+                            self.callback()
+
+
 class Hint:
     def __init__(self, pos, parent, text, key = None):
         self.parent = parent
