@@ -6,7 +6,7 @@ from particles import ParticleSource
 from player import Player
 from npc import Marcus
 from functions import importCutGraphics, importCsvLayout, getLevelSize
-from interactive import BalloonMessage, Hint
+from interactive import BalloonMessage, Hint, Objective
 from camera import CameraGroup
 
 
@@ -43,9 +43,10 @@ class Level:
         self.levelMusic = pygame.mixer.Sound(self.levelData['LevelMusic'])
         self.levelMusic.set_volume(self.levelParameters.get('musicVolume', 1) * int(self.config.get('musicVolume', 'Settings')) / 100)
 
-        # Balloon Messages & Hints Processing
+        # Balloon Messages & Hints & Objectives Processing
         self.balloonMessages = []
         self.hints = []
+        self.objectives = []
 
         # Time Travelling
         self.inPast = True if self.levelParameters.get('startTime', 'future') == 'past' else False
@@ -64,6 +65,10 @@ class Level:
 
         # Level Setup
         self.setupLevel()
+
+        # Level Initial Objectives
+        for text, delay in self.levelData.get('StartQuests', ()):
+            threading.Timer(delay, self.addObjective, [text]).start()
 
         self.levelMusic.play(loops=-1)
         pygame.mouse.set_cursor(0)
@@ -112,6 +117,17 @@ class Level:
         message = BalloonMessage(messages, pos, speed, color, voice, self.switchPlayerControllability, callback)
         message.speechSound.set_volume(int(self.config.get('effectsVolume', 'Settings')) / 100)  # Beeps Volume
         self.balloonMessages.append(message)
+
+    def addObjective(self, text, animation = True):
+        objective = Objective(text)
+        objective.addSound.set_volume(0.2 * int(self.config.get('effectsVolume', 'Settings')) / 100)
+        if animation: objective.addSound.play()
+        else: objective.frame = 20
+        self.objectives.append(objective)
+
+        maxWidth = max(self.objectives, key=lambda x: x.snip.get_width()).snip.get_width()
+        for objective in self.objectives:
+            objective.maxWidth = maxWidth
 
     def screenShakeEffect(self, intensity, stay = False):
         self.screenshake = intensity

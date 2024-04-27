@@ -35,6 +35,7 @@ class CameraGroup(pygame.sprite.Group):
 
         # Time Travel Button & Gui
         self.travelBtn = TimeTravelButton(self.displaySurface, levelClass.inPast, int(levelClass.config.get('interfaceVolume', 'Settings')))
+        self.objectivesTitle = pygame.image.load('assets/images/gui/objectivesTitle.png').convert()
         self.timeTravelSound = pygame.mixer.Sound('assets/sounds/effects/TimeTravel.wav')
         self.timeTravelSound.set_volume(int(levelClass.config.get('effectsVolume', 'Settings')) / 100)
 
@@ -104,6 +105,16 @@ class CameraGroup(pygame.sprite.Group):
         # Hints
         for hint in self.levelClass.hints:
             hint.draw(self.displaySurface, self.offset)
+
+        # Objectives
+        objectives = self.levelClass.objectives
+        if objectives:
+            maxWidth = 0
+            for id, objective in enumerate(objectives):
+                objective.draw(self.displaySurface, id)
+                maxWidth = max(objective.maxWidth, maxWidth)
+
+            self.displaySurface.blit(self.objectivesTitle, (screenSize[0] - maxWidth - 70, 24))
 
         # Time Travel Button
         playerControllability = self.levelClass.player.sprite.controllability
