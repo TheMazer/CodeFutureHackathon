@@ -1,6 +1,7 @@
 from settings import *
 
 import random
+from tiles import Cloud
 from interactive import TimeTravelButton
 
 
@@ -18,6 +19,19 @@ class CameraGroup(pygame.sprite.Group):
         self.flashingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.fadingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.fadeImage = None
+
+        # Background
+        self.backgroundSurface = pygame.Surface((levelClass.levelSize[0] * tileSize, levelClass.levelSize[1] * tileSize))
+
+        # Clouds
+        self.clouds = []; levelSize = self.levelClass.levelSize
+        for i in range(round((levelSize[0] * tileSize / screenSize[0]) * (levelSize[1] * tileSize / screenSize[1]) * 4)):
+            self.clouds.append(Cloud(
+                x=random.randint(0, levelSize[0] * tileSize),
+                y=random.randint(0, levelSize[1] * tileSize),
+                resetX=levelSize[0] * tileSize,
+                movingSpeed=random.randint(1, 3)
+            ))
 
         # Time Travel Button & Gui
         self.travelBtn = TimeTravelButton(self.displaySurface, levelClass.inPast, int(levelClass.config.get('interfaceVolume', 'Settings')))
@@ -40,6 +54,35 @@ class CameraGroup(pygame.sprite.Group):
 
         # Tiles will Draw only if colliding this Rect
         cameraViewRect = pygame.Rect(self.offset, screenSize)
+
+        # Background
+        bgImage = self.levelClass.bgImage
+        if bgImage is not None:
+            # Adding Background Images on Background Surface with Parallax Effect
+            for mosaicX in range(self.levelClass.levelSize[0] * tileSize // bgImage.get_width()):
+                for mosaicY in range(self.levelClass.levelSize[1] * tileSize // bgImage.get_height() + 1):
+                    dest = (self.offset.x / 2 + mosaicX * bgImage.get_width(),
+                            self.offset.y / 2 + mosaicY * bgImage.get_height())
+                    # Checking if Background in Camera's View
+                    if pygame.Rect(dest[0], dest[1], bgImage.get_width(), bgImage.get_height()).colliderect(cameraViewRect):
+                        self.backgroundSurface.blit(bgImage, dest)
+
+            # Clouds Drawing and Moving
+            for cloud in self.clouds:
+                cloud.move()  # Move Cloud
+                cloudRect = cloud.rect.copy()
+                cloudRect.topleft -= self.offset / 10
+                if cloudRect.colliderect(cameraViewRect):  # Draw only those Clouds thar are in Camera View
+                    self.backgroundSurface.blit(cloud.image, (cloud.rect.x, cloud.rect.y) - self.offset / 10)
+                if cloudRect.left >= cloud.resetX:  # If Cloud reached end of level
+                    cloud.rect.right = 0
+
+            # Drawing Background
+            self.displaySurface.blit(self.backgroundSurface.subsurface((0, 0,
+                min(self.levelClass.levelSize[0] * tileSize, self.backgroundSurface.get_width()),
+                min(self.levelClass.levelSize[1] * tileSize, self.backgroundSurface.get_height())
+                )), -self.offset
+            )
 
         # Drawing Sprites
         for sprite in self.sprites():

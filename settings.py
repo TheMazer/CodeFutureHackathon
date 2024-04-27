@@ -79,7 +79,6 @@ level_2 = {
     'pastGroundTileset': 'assets/images/tilesets/streetTiles.png',
     'futureGroundTileset': 'assets/images/tilesets/streetTiles.png',
 
-    'FutureBackgroundImage': 'assets/images/background/levels/2/future.png',
     'PastBackgroundImage': 'assets/images/background/levels/2/past.png',
 
     'LevelMusic': 'assets/sounds/music/Arcade Machine.mp3'

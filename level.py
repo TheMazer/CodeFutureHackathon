@@ -5,7 +5,7 @@ from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController
 from particles import ParticleSource
 from player import Player
 from npc import Marcus
-from functions import importCutGraphics, importCsvLayout
+from functions import importCutGraphics, importCsvLayout, getLevelSize
 from interactive import BalloonMessage, Hint
 from camera import CameraGroup
 
@@ -55,6 +55,12 @@ class Level:
         # Time-based Tilesets
         self.pastGroundTileList = importCutGraphics(self.levelData['pastGroundTileset'])
         self.futureGroundTileList = importCutGraphics(self.levelData['futureGroundTileset'])
+
+        # Background Image
+        self.levelSize = getLevelSize(self.levelData['Ground'])
+        self.futureBgImage = pygame.image.load(self.levelData['FutureBackgroundImage']).convert() if 'FutureBackgroundImage' in self.levelData else None
+        self.pastBgImage = pygame.image.load(self.levelData['PastBackgroundImage']).convert() if 'PastBackgroundImage' in self.levelData else None
+        self.bgImage = self.pastBgImage if self.inPast else self.futureBgImage
 
         # Level Setup
         self.setupLevel()

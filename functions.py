@@ -62,6 +62,20 @@ def importCsvLayout(path):
         return []
 
 
+def getLevelSize(path):
+    width = 0
+    height = 0
+
+    with open(path) as map:
+        level = reader(map, delimiter = ',')
+        for row in level:
+            height += 1
+            if len(row) > width:
+                width = len(row)
+
+    return width, height
+
+
 def importCutGraphics(path):
     surface = pygame.image.load(path).convert_alpha()
     tileNumX = int(surface.get_size()[0] / tileSize)

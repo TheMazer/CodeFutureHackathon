@@ -1,5 +1,6 @@
 from settings import *
 
+import random
 from functions import importFolder
 
 
@@ -46,6 +47,28 @@ class AnimatedTile(Tile):
 
     def update(self):
         self.animate()
+
+
+# Clouds Preloading
+cloudImages = []
+for i in range(1, 5):
+    cloudImages.append(pygame.image.load('assets/images/background/clouds/' + str(i) + '.png'))
+
+
+class Cloud(StaticTile):
+    def __init__(self, x, y, resetX, movingSpeed = 10):
+        super().__init__(x, y, random.choice(cloudImages).convert_alpha())
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.resetX = resetX
+        self.movingSpeed = movingSpeed
+        self.movingTimer = 0
+
+    def move(self):
+        if self.movingTimer >= self.movingSpeed:
+            self.rect.x += 1
+            self.movingTimer = 0
+        else:
+            self.movingTimer += 1
 
 
 class EnergyExplosion(AnimatedTile):

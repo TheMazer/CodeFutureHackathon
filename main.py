@@ -16,7 +16,7 @@ class Game:
         self.menu = None
         self.level = None
         self.currentStage = None
-        self.createLevel(level_2)
+        self.createLevel(level_1)
 
     def createMainMenu(self):
         self.menu = None
