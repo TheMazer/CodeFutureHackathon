@@ -26,6 +26,9 @@ class Npc(pygame.sprite.Sprite):
 
         # Level Management
         self.switchPlayerControllability = levelClass.switchPlayerControllability
+        self.screenShakeEffect = levelClass.screenShakeEffect
+        self.screenFlashEffect = levelClass.screenFlashEffect
+        self.screenFadeEffect = levelClass.screenFadeEffect
         self.createBalloonMessage = levelClass.createBalloonMessage
 
     def importNpcAssets(self, npc_type):
@@ -108,9 +111,9 @@ class Marcus(Npc):
         self.createBalloonMessage(['Удачи, профессор!'], 'player', callback=self.moving)
 
     def moving(self):
-        self.switchPlayerControllability(False)
+        # self.switchPlayerControllability(False)
         self.facingRight = False
-        pygame.mouse.set_visible(False)
+        # pygame.mouse.set_visible(False)
         threading.Timer(0.5, self.moving2).start()
 
     def moving2(self):

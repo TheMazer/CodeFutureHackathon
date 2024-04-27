@@ -37,9 +37,12 @@ class Level:
 
         # Time Travelling
         self.inPast = True
-        
-        # Tilesets
-        self.groundTileList = importCutGraphics('assets/images/tilesets/auditoriumTiles.png')
+        self.hasTimeMachine = True  # Todo: Replace with this: self.levelParameters.get('hasTimeMachine', 0)
+        self.lastPlayerPositions = {'past': (0.0, 0.0), 'future': (0.0, 0.0), 'init': (0, 0)}
+
+        # Time-based Tilesets
+        self.pastGroundTileList = importCutGraphics(self.levelData['pastGroundTileset'])
+        self.futureGroundTileList = importCutGraphics(self.levelData['futureGroundTileset'])
 
         # Level Setup
         self.setupLevel()
@@ -92,7 +95,8 @@ class Level:
                     y = rowIndex * tileSize
 
                     if sType == 'Ground':
-                        groundTileList = self.groundTileList
+                        if self.inPast: groundTileList = self.pastGroundTileList
+                        else: groundTileList = self.futureGroundTileList
                         tileSurface = groundTileList[int(val)]
                         sprite = StaticTile(x, y, tileSurface, int(val))
                     elif sType == 'Fades':
@@ -277,6 +281,82 @@ class Level:
         self.cameraGroup.add(self.fadesSprites)
 
         self.player.sprite.collideableSprites = self.groundSprites.sprites() + self.decorationSprites.sprites()
+
+    def timeTravel(self, to: str = None):
+        for sprite in self.cameraGroup.sprites():
+            self.cameraGroup.remove(sprite)
+
+        # Returning Basic Sprites (Pt 1)
+        self.cameraGroup.add(self.underBgDecorationSprites)
+        self.cameraGroup.add(self.backgroundSprites)
+        self.cameraGroup.add(self.groundSprites)
+        self.cameraGroup.add(self.bgDecorationSprites)
+
+        # Adding sprites depending on current time
+        if (self.inPast and to != 'past') or to == 'future':
+            if self.player.sprite.onGround:
+                self.lastPlayerPositions['past'] = self.player.sprite.rect.topleft
+            if self.lastPlayerPositions['future'] != (0, 0):
+                self.player.sprite.hitbox.topleft = self.lastPlayerPositions['future']
+            self.inPast = False
+            for sprite in self.groundSprites.sprites() + self.futureGroundSprites.sprites() + self.pastGroundSprites.sprites() + self.backgroundSprites.sprites():
+                tileSurface = self.futureGroundTileList[sprite.val]
+                sprite.image = tileSurface
+            self.cameraGroup.add(self.futureGroundSprites)
+            self.cameraGroup.add(self.futureBgSprites)
+            self.cameraGroup.add(self.futureObjectsSprites)
+            self.cameraGroup.add(self.animatedSprites)
+            self.cameraGroup.add(self.futurePlatforms)
+            self.cameraGroup.add(self.futureHelicopters)
+            self.cameraGroup.add(self.futureSaws)
+        else:
+            if self.player.sprite.onGround:
+                self.lastPlayerPositions['future'] = self.player.sprite.rect.topleft
+            if self.lastPlayerPositions['past'] != (0, 0):
+                self.player.sprite.hitbox.topleft = self.lastPlayerPositions['past']
+            self.inPast = True
+            for sprite in self.groundSprites.sprites() + self.futureGroundSprites.sprites() + self.pastGroundSprites.sprites() + self.backgroundSprites.sprites():
+                tileSurface = self.pastGroundTileList[sprite.val]
+                sprite.image = tileSurface
+            self.cameraGroup.add(self.pastGroundSprites)
+            self.cameraGroup.add(self.pastBgSprites)
+            self.cameraGroup.add(self.pastObjectsSprites)
+            self.cameraGroup.add(self.pastAnimatedSprites)
+            self.cameraGroup.add(self.pastPlatforms)
+            self.cameraGroup.add(self.pastHelicopters)
+            self.cameraGroup.add(self.pastSaws)
+
+        # What Scripted Objects will add to Camera depends on Time Condition
+        timeCondBgScriptedObjects = pygame.sprite.Group([sprite for sprite in self.bgScriptedObjectsSprites if not hasattr(sprite, 'inPast') or sprite.inPast == self.inPast])
+        timeCondScriptedObjects = pygame.sprite.Group([sprite for sprite in self.scriptedObjectsSprites if not hasattr(sprite, 'inPast') or sprite.inPast == self.inPast])
+
+        # Returning Basic Sprites (Pt 2)
+        self.cameraGroup.add(self.decorationSprites)
+        self.cameraGroup.add(timeCondBgScriptedObjects)
+        self.cameraGroup.add([
+            npc for npc in self.npcSprites if not hasattr(npc, 'timeCond') or
+            (npc.timeCond == 'all' or
+            (npc.timeCond == 'past' and self.inPast) or
+            (npc.timeCond == 'future' and not self.inPast))
+        ])
+        self.cameraGroup.add(self.player)
+        self.cameraGroup.add(self.goal)
+        if self.inPast:  # Adding Particles depending on current time and changing Background image
+            self.cameraGroup.add(self.pastParticleSourcesSprites)
+            self.cameraGroup.add(self.pastFadesSprites)
+        else:
+            self.cameraGroup.add(self.particleSourcesSprites)
+            self.cameraGroup.add(self.futureFadesSprites)
+        self.cameraGroup.add(self.fadesSprites)
+        self.cameraGroup.add(timeCondScriptedObjects)
+
+        # Resetting Player's Direction to prevent from noclipping
+        self.player.sprite.direction = pygame.Vector2()
+
+        self.screenshake = 30
+        self.flashing = 100
+
+        return self.inPast
 
     # noinspection PyTypeChecker
     def playerSetup(self, layout, facingRight):

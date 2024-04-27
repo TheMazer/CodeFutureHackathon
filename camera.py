@@ -1,6 +1,7 @@
 from settings import *
 
 import random
+from interactive import mButton
 
 
 class CameraGroup(pygame.sprite.Group):
@@ -17,6 +18,9 @@ class CameraGroup(pygame.sprite.Group):
         self.flashingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.fadingSurf = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.fadeImage = None
+
+        # Time Travel Button & Gui
+        self.travelBtn = mButton('Time Travel', 900, self.displaySurface)
 
     def render(self):
         # Cleaning Display
@@ -50,6 +54,17 @@ class CameraGroup(pygame.sprite.Group):
                 balloonMessages.remove(message)
             else:
                 message.draw(self.displaySurface, self.offset)
+
+        # Time Travel Button
+        playerControllability = self.levelClass.player.sprite.controllability
+        hasTimeMachine = self.levelClass.hasTimeMachine
+        if playerControllability and hasTimeMachine:
+            if self.travelBtn.checkClick():
+                inPast = self.levelClass.timeTravel()
+                self.travelBtn.hovered = False
+
+        if hasTimeMachine:
+            self.travelBtn.draw()
 
         # Effects Rendering
         # Flashing

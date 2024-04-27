@@ -1,4 +1,5 @@
 import pygame
+pygame.init()
 
 # Screen Setup
 screenSize = (1920, 1080)
@@ -8,8 +9,17 @@ screenFlags = pygame.NOFRAME | pygame.HWSURFACE | pygame.DOUBLEBUF
 tileSize = 64
 fps = 60
 
+# Fonts
+mainFont = pygame.font.Font('assets/fonts/PressStart2P.ttf', 20)
+bigFont = pygame.font.Font('assets/fonts/PressStart2P.ttf', 24)
+dialogueFont = pygame.font.Font('assets/fonts/PressStart2P.ttf', 16)
+
 # Level Dictionaries
 level_1 = {
+    'Parameters': {
+        'playerFacingRight': False,
+    },
+
     'ScriptedObjects': 'levels/1/level1_ScriptedObjects.csv',
     'Fades': 'levels/1/level1_Fades.csv',
     'ParticleSources': 'levels/1/level1_ParticleSources.csv',
@@ -25,5 +35,8 @@ level_1 = {
     'PastBg': 'levels/1/level1_PastBg.csv',
     'bgDecoration': 'levels/1/level1_bgDecoration.csv',
     'Ground': 'levels/1/level1_Ground.csv',
-    'Background': 'levels/1/level1_Background.csv'
+    'Background': 'levels/1/level1_Background.csv',
+
+    'pastGroundTileset': 'assets/images/tilesets/auditoriumTiles.png',
+    'futureGroundTileset': 'assets/images/tilesets/auditoriumTiles.png'
 }
