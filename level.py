@@ -5,6 +5,7 @@ from particles import ParticleSource
 from player import Player
 from npc import Marcus
 from functions import importCutGraphics, importCsvLayout
+from interactive import BalloonMessage
 from camera import CameraGroup
 
 
@@ -18,6 +19,9 @@ class Level:
         self.levelData = levelData
         self.levelParameters = self.levelData.get('Parameters', {})
 
+        # Balloon Messages Processing
+        self.balloonMessages = []
+
         # Time Travelling
         self.inPast = True
         
@@ -26,6 +30,19 @@ class Level:
 
         # Level Setup
         self.setupLevel()
+
+    # Game Management Functions
+    def switchPlayerControllability(self, mode: bool = None):
+        if mode is not None:
+            self.player.sprite.controllability = mode
+        else:
+            self.player.sprite.controllability = not self.player.sprite.controllability
+
+    def createBalloonMessage(self, messages, pos, speed = 3, color = 'White', callback = None, voice = 'beep'):
+        if pos == 'player': pos = self.player.sprite.rect.topleft  # Player Speech
+        message = BalloonMessage(messages, pos, speed, color, voice, self.switchPlayerControllability, callback)
+        message.speechSound.set_volume(0.5)  # Beeps Volume  Todo: Make config for this
+        self.balloonMessages.append(message)
 
     # noinspection PyTypeChecker, PyUnboundLocalVariable
     def createTileGroup(self, layout, sType):
@@ -106,15 +123,15 @@ class Level:
         decorationLayout = importCsvLayout(self.levelData.get('Decoration'))
         self.decorationSprites = self.createTileGroup(decorationLayout, 'Decoration')
 
-        # Npcs Setup
-        npcLayout = importCsvLayout(self.levelData.get('Npcs'))
-        self.npcSprites = self.createTileGroup(npcLayout, 'Npcs')
-
         # Player Setup
         playerLayout = importCsvLayout(self.levelData['Player'])
         self.player = pygame.sprite.GroupSingle()
         self.goal = pygame.sprite.GroupSingle()
         self.playerSetup(playerLayout, self.levelParameters.get('playerFacingRight', True))
+
+        # Npcs Setup
+        npcLayout = importCsvLayout(self.levelData.get('Npcs'))
+        self.npcSprites = self.createTileGroup(npcLayout, 'Npcs')
 
         # Future Decoration Setup
         futureBgLayout = importCsvLayout(self.levelData.get('FutureBg'))

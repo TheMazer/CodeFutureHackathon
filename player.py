@@ -27,6 +27,7 @@ class Player(pygame.sprite.Sprite):
 
         # Player status
         self.status = 'idle'
+        self.controllability = True
         self.facingRight = facingRight
         self.onGround = False
         self.onCeiling = False
@@ -105,18 +106,19 @@ class Player(pygame.sprite.Sprite):
         self.direction.y = self.playerJumpSpeed
 
     def getInput(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_d]:
-            self.direction.x = 1
-            self.facingRight = True
-        elif keys[pygame.K_a]:
-            self.direction.x = -1
-            self.facingRight = False
-        else:
-            self.direction.x = 0
+        if self.controllability:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_d]:
+                self.direction.x = 1
+                self.facingRight = True
+            elif keys[pygame.K_a]:
+                self.direction.x = -1
+                self.facingRight = False
+            else:
+                self.direction.x = 0
 
-        if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and self.onGround:
-            self.jump()
+            if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and self.onGround:
+                self.jump()
 
     def getStatus(self):
         if self.direction.y < 0:

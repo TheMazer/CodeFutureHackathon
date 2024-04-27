@@ -24,9 +24,18 @@ class CameraGroup(pygame.sprite.Group):
         # Tiles will Draw only if colliding this Rect
         cameraViewRect = pygame.Rect(self.offset, screenSize)
 
+        # Drawing Sprites
         for sprite in self.sprites():
             sprite.update()
 
             offsetPos = sprite.rect.topleft - self.offset
             if sprite.drawable and sprite.rect.colliderect(cameraViewRect):
                 self.displaySurface.blit(sprite.image, offsetPos)
+
+        # Drawing Balloon Messages
+        balloonMessages = self.levelClass.balloonMessages
+        for message in balloonMessages:
+            if message.done:
+                balloonMessages.remove(message)
+            else:
+                message.draw(self.displaySurface, self.offset)
