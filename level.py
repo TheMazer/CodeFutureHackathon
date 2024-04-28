@@ -1,7 +1,7 @@
 from settings import *
 
 import threading
-from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, VerticalTrigger, Bonus, Platform, Helicopter, Saw, MidDoor, Alarm
+from tiles import StaticTile, StaticObject, EnergyExplosion, FenceGateController, VerticalTrigger, Bonus, Platform, Helicopter, Saw, MidDoor, WasdGuide, Alarm
 from particles import ParticleSource, ParticleSpawner
 from player import Player
 from npc import Marcus, MarcusAtCorps, HistoryTeacher, FranceTeacher, MathsTeacher
@@ -321,6 +321,8 @@ class Level:
                     elif sType == 'AnimatedObjects':
                         if val == '0':  # Alarm
                             sprite = Alarm(x, y, val)
+                        elif val == '1':  # WASD Guide
+                            sprite = WasdGuide(x, y)
                     elif sType == 'ParticleSources':
                         sprite = ParticleSource(x, y, val, self.displaySurface, self.cameraGroup)
                     elif sType == 'Npcs':

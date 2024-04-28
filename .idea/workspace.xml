@@ -4,13 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9f11e7d0-a6f2-415f-9812-562477094973" name="Changes" comment="Music Remixes">
+    <list default="true" id="9f11e7d0-a6f2-415f-9812-562477094973" name="Changes" comment="Boosts Created">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/gui/credits2.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/gui/credits2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/tilesets/animatedObjTiles.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/tilesets/animatedObjTiles.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/config.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/level.py" beforeDir="false" afterPath="$PROJECT_DIR$/level.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/particles.py" beforeDir="false" afterPath="$PROJECT_DIR$/particles.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/player.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/levels/1/level1_PastAnimatedObjects.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/1/level1_PastAnimatedObjects.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/levels/level_data/level1.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level_data/level1.tmx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/npc.py" beforeDir="false" afterPath="$PROJECT_DIR$/npc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tiles.py" beforeDir="false" afterPath="$PROJECT_DIR$/tiles.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -61,17 +63,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/Yevgeniy/PycharmProjects/Preparings",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Yevgeniy/PycharmProjects/Preparings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Tempus Corp." type="PythonConfigurationType" factoryName="Python">
       <module name="CodeFutureHackathon" />
@@ -369,7 +371,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714261550785</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="Boosts Created">
+      <option name="closed" value="true" />
+      <created>1714261831278</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1714261831279</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -387,7 +397,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Camera Gradually Movement" />
     <MESSAGE value="Create Animated Objects" />
     <MESSAGE value="Particle Sources" />
     <MESSAGE value="Camera View Rect" />
@@ -412,6 +421,7 @@
     <MESSAGE value="Clouds &amp; Sky" />
     <MESSAGE value="Repository Design" />
     <MESSAGE value="Music Remixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Music Remixes" />
+    <MESSAGE value="Boosts Created" />
+    <option name="LAST_COMMIT_MESSAGE" value="Boosts Created" />
   </component>
 </project>

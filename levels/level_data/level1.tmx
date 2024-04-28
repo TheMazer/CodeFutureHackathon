@@ -3,14 +3,15 @@
  <editorsettings>
   <export target="../1/level1.csv" format="csv"/>
  </editorsettings>
- <tileset firstgid="1" source="../tilesets/fadeTiles.tsx"/>
- <tileset firstgid="11" source="../tilesets/setup_tiles.tsx"/>
- <tileset firstgid="13" source="../tilesets/animatedObjTiles.tsx"/>
- <tileset firstgid="14" source="../tilesets/objects.tsx"/>
- <tileset firstgid="202" source="../tilesets/particles.tsx"/>
- <tileset firstgid="207" source="../tilesets/npcs.tsx"/>
- <tileset firstgid="212" source="../tilesets/auditoriumTiles.tsx"/>
- <tileset firstgid="266" source="../tilesets/scriptedObjects.tsx"/>
+ <tileset firstgid="1" source="../../../Preparings/levels/tilesets/fadeTiles.tsx"/>
+ <tileset firstgid="11" source="../../../Preparings/levels/tilesets/setup_tiles.tsx"/>
+ <tileset firstgid="13" source="../../../Preparings/levels/tilesets/animatedObjTiles.tsx"/>
+ <tileset firstgid="14" source="../../../Preparings/levels/tilesets/objects.tsx"/>
+ <tileset firstgid="202" source="../../../Preparings/levels/tilesets/particles.tsx"/>
+ <tileset firstgid="207" source="../../../Preparings/levels/tilesets/npcs.tsx"/>
+ <tileset firstgid="212" source="../../../Preparings/levels/tilesets/auditoriumTiles.tsx"/>
+ <tileset firstgid="266" source="../../../Preparings/levels/tilesets/scriptedObjects.tsx"/>
+ <tileset firstgid="270" source="../tilesets/animatedObjTiles.tsx"/>
  <layer id="12" name="Background" width="28" height="14">
   <data encoding="csv">
 0,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,246,0,
@@ -220,14 +221,14 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,271,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="13" name="AnimatedObjects" width="28" height="14" visible="0">
+ <layer id="13" name="AnimatedObjects" width="28" height="14">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

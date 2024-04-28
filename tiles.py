@@ -278,6 +278,30 @@ class MidDoor(AnimatedTile):
         self.image.blit(self.outline, (0, 0))
 
 
+class WasdGuide(StaticObject):
+    def __init__(self, x, y):
+        super().__init__(x, y, '189')
+        self.image.set_alpha(0)
+        self.appear = True
+        self.frame = 0
+        self.wait = 0
+
+    def update(self):
+        if self.wait <= 1000:
+            self.wait += 1
+        else:
+            if self.appear:
+                self.image.set_alpha(self.frame)
+                self.frame += 2
+                if self.frame >= 255:
+                    self.appear = False
+            else:
+                self.image.set_alpha(self.frame)
+                self.frame -= 2
+                if self.frame <= 100:
+                    self.appear = True
+
+
 class Alarm(AnimatedTile):
     def __init__(self, x, y, path):
         super().__init__(x, y, path)
