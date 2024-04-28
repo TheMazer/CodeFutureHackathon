@@ -4,16 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9f11e7d0-a6f2-415f-9812-562477094973" name="Changes" comment="Boosts Created">
+    <list default="true" id="9f11e7d0-a6f2-415f-9812-562477094973" name="Changes" comment="Wast Guide">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/gui/credits2.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/gui/credits2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/tilesets/animatedObjTiles.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/tilesets/animatedObjTiles.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/sounds/music/Arcade Machine Trap Remix.wav" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/sounds/music/Cunning Fox R&amp;B Remix.wav" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/sounds/music/MainMenuTheme Trap Remix.wav" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/sounds/music/Washy Noise.wav" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/config.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/level.py" beforeDir="false" afterPath="$PROJECT_DIR$/level.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/1/level1_PastAnimatedObjects.csv" beforeDir="false" afterPath="$PROJECT_DIR$/levels/1/level1_PastAnimatedObjects.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levels/level_data/level1.tmx" beforeDir="false" afterPath="$PROJECT_DIR$/levels/level_data/level1.tmx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/menu.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/npc.py" beforeDir="false" afterPath="$PROJECT_DIR$/npc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tiles.py" beforeDir="false" afterPath="$PROJECT_DIR$/tiles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,17 +65,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Yevgeniy/PycharmProjects/Preparings&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/Yevgeniy/PycharmProjects/TempusPlatformer",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="Tempus Corp." type="PythonConfigurationType" factoryName="Python">
       <module name="CodeFutureHackathon" />
@@ -397,7 +399,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Create Animated Objects" />
     <MESSAGE value="Particle Sources" />
     <MESSAGE value="Camera View Rect" />
     <MESSAGE value="Create Npc" />
@@ -422,6 +423,7 @@
     <MESSAGE value="Repository Design" />
     <MESSAGE value="Music Remixes" />
     <MESSAGE value="Boosts Created" />
-    <option name="LAST_COMMIT_MESSAGE" value="Boosts Created" />
+    <MESSAGE value="Wast Guide" />
+    <option name="LAST_COMMIT_MESSAGE" value="Wast Guide" />
   </component>
 </project>

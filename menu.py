@@ -24,7 +24,7 @@ class Menu:
         self.currentLevel = levelList[self.progress]
 
         # Menu Theme
-        self.menuTheme = pygame.mixer.Sound('assets/sounds/music/MainMenuTheme Trap Remix.wav')
+        self.menuTheme = pygame.mixer.Sound('assets/sounds/music/MainMenuTheme Trap Remix.mp3')
         self.menuTheme.set_volume(0.4 * int(self.config.get('musicVolume', 'Settings')) / 100)
 
         # Buttons

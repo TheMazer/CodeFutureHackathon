@@ -206,3 +206,29 @@ class Player(pygame.sprite.Sprite):
         self.horizontalMovementCollision()
         self.verticalMovementCollision()
         self.onTopMovementCollision()
+
+    def reset(self, pos):
+        self.importCharacterAssets()
+        self.frameIndex = 0
+        self.animationSpeed = 0.10
+        self.transparency = 0
+        self.image = self.animations['idle'][self.frameIndex]
+        self.rect = self.image.get_rect(topleft=pos)
+        self.drawable = True
+        self.controllability = True
+
+        # Dust Particles
+        self.dustFrameIndex = 0
+
+        # Player movement
+        self.direction = pygame.Vector2(0, 0)
+        self.playerGravity = 0.8
+        self.hitbox = pygame.Rect(
+            self.rect.topleft,
+            (40, self.rect.height)
+        )  # (pos, size)
+
+        # Player status
+        self.status = 'idle'
+        self.passPlatforms = -1
+        self.onGround = False

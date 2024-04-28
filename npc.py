@@ -167,7 +167,7 @@ class Marcus(Npc):
         threading.Timer(4, self.changeFadeImage, [self.gameLogo]).start()
         threading.Timer(3.2, self.playSound, ['assets/sounds/effects/Whoosh Hit.wav', 0.5]).start()
         threading.Timer(10, self.changeFadeImage, [None]).start()
-        threading.Timer(12.2, self.setBackgroundMusic, ['assets/sounds/music/Washy Noise.wav', 0.5]).start()
+        threading.Timer(12.2, self.setBackgroundMusic, ['assets/sounds/music/Washy Noise.mp3', 0.5]).start()
         threading.Timer(13, self.createBalloonMessage, [['Профессор!?'], 'player', 10, (255, 50, 50)]).start()
 
 

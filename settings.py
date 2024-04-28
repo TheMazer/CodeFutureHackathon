@@ -44,7 +44,7 @@ level_1 = {
     'pastGroundTileset': 'assets/images/tilesets/auditoriumTiles.png',
     'futureGroundTileset': 'assets/images/tilesets/auditoriumTiles.png',
 
-    'LevelMusic': 'assets/sounds/music/Cunning Fox R&B Remix.wav'
+    'LevelMusic': 'assets/sounds/music/Cunning Fox R&B Remix.mp3'
 }
 
 level_2 = {
@@ -82,7 +82,7 @@ level_2 = {
 
     'PastBackgroundImage': 'assets/images/background/levels/2/past.png',
 
-    'LevelMusic': 'assets/sounds/music/Arcade Machine Trap Remix.wav'
+    'LevelMusic': 'assets/sounds/music/Arcade Machine Trap Remix.mp3'
 }
 
 level_3 = {
@@ -134,7 +134,7 @@ level_3 = {
     'FutureBackgroundImage': 'assets/images/background/levels/3/future.png',
     'CustomCloudsFolder': 'assets/images/background/cloudFades',
 
-    'LevelMusic': 'assets/sounds/music/Cunning Fox R&B Remix.wav',
+    'LevelMusic': 'assets/sounds/music/Cunning Fox R&B Remix.mp3',
     'FutureMusic': 'assets/sounds/music/Pulse of Time.mp3'
 }
 

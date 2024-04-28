@@ -735,13 +735,13 @@ class Level:
                 bonus.collect(self.player.sprite)
 
     def constraintsCheck(self):
-        playerCollisionRect = self.player.sprite.collisionRect
-        if playerCollisionRect.left <= 0:
-            playerCollisionRect.left = 0
-        elif playerCollisionRect.right >= self.levelSize[0] * tileSize:
-            playerCollisionRect.right = self.levelSize[0] * tileSize
+        hitbox = self.player.sprite.hitbox
+        if hitbox.left <= 0:
+            hitbox.left = 0
+        elif hitbox.right >= self.levelSize[0] * tileSize:
+            hitbox.right = self.levelSize[0] * tileSize
 
-        if playerCollisionRect.bottom >= self.levelSize[1] * tileSize:
+        if hitbox.bottom >= self.levelSize[1] * tileSize:
             self.death = True
 
     def damageObjectsCollisionCheck(self):
@@ -780,7 +780,6 @@ class Level:
                         pos = self.lastPlayerPositions['init']
 
                     self.player.sprite.reset(pos)
-                    self.playerControllability = True
                     self.death = False
                     self.finishProgress = 0
                     self.transition = 60
@@ -814,6 +813,7 @@ class Level:
         self.checkBonusCollect()
         self.damageObjectsCollisionCheck()
         self.checkFinish()
+        self.constraintsCheck()
 
         # Screen Effects Processing
         if self.screenshake and not self.screenshakeFrozen:
